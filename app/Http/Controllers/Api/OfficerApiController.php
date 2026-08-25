@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Visit;
+use App\Http\Resources\VisitResource;
+use Illuminate\Support\Facades\DB;
+
+class OfficerApiController extends Controller
+{
+    public function scan(Request $request)
+    {
+        $request->validate(['qr_token' => 'required|string']);
+
+        $tokenHash = hash('sha256', $request->qr_token);
+        
+        $visit = Visit::with(['visitor', 'service', 'members'])->where('qr_token_hash', $tokenHash)->first();
+
+        if (!$visit) {
+            return response()->json(['message' => 'Invalid QR Code.'], 404);
+        }
+
+        return response()->json([
+            'data' => new VisitResource($visit)
+        ]);
+    }
+
+    public function checkIn(Request $request, Visit $id)
+    {
+        $visit = $id;
+        
+        if ($visit->status !== 'pending') {
+            return response()->json([
+                'message' => 'Visit cannot be checked in. Current status: ' . $visit->status
+            ], 422);
+        }
+
+        $visit->update([
+            'status' => 'checked_in',
+            'checked_in_at' => now()
+        ]);
+
+        return response()->json([
+            'message' => 'Successfully checked in.',
+            'data' => new VisitResource($visit->load(['visitor', 'service', 'members']))
+        ]);
+    }
+}
