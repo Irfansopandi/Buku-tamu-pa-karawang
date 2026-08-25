@@ -19,5 +19,25 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Seed Admin Dummy
+        \App\Models\Admin::firstOrCreate(
+            ['email' => 'admin@test.com'],
+            [
+                'name' => 'Admin',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'is_active' => true,
+            ]
+        );
+
+        // Seed Officer Dummy
+        \App\Models\Officer::firstOrCreate(
+            ['email' => 'officer@test.com'],
+            [
+                'name' => 'Officer',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'is_active' => true,
+            ]
+        );
     }
 }
