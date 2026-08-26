@@ -17,7 +17,7 @@ export async function loginAdminAction(prevState: unknown, formData: FormData) {
     const password = formData.get("password") as string;
 
     if (!email || !password) {
-        return { error: "Email and password are required." };
+        return { error: "Email dan kata sandi wajib diisi." };
     }
 
     try {
@@ -33,7 +33,7 @@ export async function loginAdminAction(prevState: unknown, formData: FormData) {
         if (err instanceof ApiError) {
             return { error: err.message };
         }
-        return { error: "An unexpected error occurred." };
+        return { error: "Terjadi kesalahan yang tidak terduga. Silakan coba lagi." };
     }
 
     redirect("/admin/dashboard");
@@ -44,7 +44,7 @@ export async function loginOfficerAction(prevState: unknown, formData: FormData)
     const password = formData.get("password") as string;
 
     if (!email || !password) {
-        return { error: "Email and password are required." };
+        return { error: "Email dan kata sandi wajib diisi." };
     }
 
     try {
@@ -60,10 +60,10 @@ export async function loginOfficerAction(prevState: unknown, formData: FormData)
         if (err instanceof ApiError) {
             return { error: err.message };
         }
-        return { error: "An unexpected error occurred." };
+        return { error: "Terjadi kesalahan yang tidak terduga. Silakan coba lagi." };
     }
 
-    redirect("/officer/scan");
+    redirect("/officer/dashboard");
 }
 
 export async function logoutAdminAction() {

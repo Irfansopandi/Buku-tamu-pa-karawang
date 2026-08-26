@@ -19,8 +19,12 @@ class AuthController extends Controller
 
         $admin = Admin::where('email', $request->email)->first();
 
-        if (!$admin || !Hash::check($request->password, $admin->password)) {
-            return response()->json(['message' => 'Invalid credentials.'], 401);
+        if (!$admin) {
+            return response()->json(['message' => 'Alamat email tidak ditemukan.'], 401);
+        }
+
+        if (!Hash::check($request->password, $admin->password)) {
+            return response()->json(['message' => 'Kata sandi yang Anda masukkan salah.'], 401);
         }
 
         if (!$admin->is_active) {
@@ -41,8 +45,12 @@ class AuthController extends Controller
 
         $officer = Officer::where('email', $request->email)->first();
 
-        if (!$officer || !Hash::check($request->password, $officer->password)) {
-            return response()->json(['message' => 'Invalid credentials.'], 401);
+        if (!$officer) {
+            return response()->json(['message' => 'Alamat email tidak ditemukan.'], 401);
+        }
+
+        if (!Hash::check($request->password, $officer->password)) {
+            return response()->json(['message' => 'Kata sandi yang Anda masukkan salah.'], 401);
         }
 
         if (!$officer->is_active) {
