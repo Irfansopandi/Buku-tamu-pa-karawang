@@ -310,7 +310,7 @@ export default function LandingPage() {
                              <span className="whitespace-nowrap">(Istirahat: 12.00 - 13.00)</span>
                           </div>
                           <div>
-                             <strong className="text-white font-semibold">Jum'at:</strong><br/>
+                             <strong className="text-white font-semibold">Jum&apos;at:</strong><br/>
                              07.30 - 16.30 <br className="hidden sm:block lg:hidden" />
                              <span className="whitespace-nowrap">(Istirahat: 11.30 - 13.00)</span>
                           </div>
