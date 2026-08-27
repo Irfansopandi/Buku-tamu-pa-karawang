@@ -7,9 +7,11 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\OfficerApiController;
 use App\Http\Controllers\Api\AdminApiController;
 
-// Public Routes (Rate limited to 5 per minute as per spec)
-Route::middleware('throttle:5,1')->group(function () {
+// Public Routes (Rate limited to 60 per minute to accommodate auto-fill and searches)
+Route::middleware('throttle:60,1')->group(function () {
     Route::post('/visits', [PublicApiController::class, 'storeVisit']);
+    Route::get('/visits/search', [PublicApiController::class, 'searchTicket']);
+    Route::get('/visitors/check/{nik}', [PublicApiController::class, 'checkVisitorByNik']);
 });
 
 Route::get('/services', [PublicApiController::class, 'services']);

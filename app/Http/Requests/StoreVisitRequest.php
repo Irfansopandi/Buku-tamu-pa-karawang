@@ -54,15 +54,16 @@ class StoreVisitRequest extends FormRequest
                 $validator->errors()->add('service_id', 'The selected service is not active.');
             }
 
-            // 2. Validate Visit Date (H-2 to Today in Asia/Jakarta)
+            // 2. Validate Visit Date (Today onwards, no weekends in Asia/Jakarta)
             if ($this->visit_date) {
                 $tz = 'Asia/Jakarta';
                 $today = Carbon::now($tz)->startOfDay();
-                $minDate = $today->copy()->subDays(2);
                 $visitDate = Carbon::parse($this->visit_date, $tz)->startOfDay();
 
-                if ($visitDate->lt($minDate) || $visitDate->gt($today)) {
-                    $validator->errors()->add('visit_date', 'The visit date must be between ' . $minDate->format('Y-m-d') . ' and ' . $today->format('Y-m-d') . ' (Asia/Jakarta).');
+                if ($visitDate->lt($today)) {
+                    $validator->errors()->add('visit_date', 'Tanggal kunjungan tidak boleh di masa lalu.');
+                } elseif ($visitDate->isWeekend()) {
+                    $validator->errors()->add('visit_date', 'Tanggal kunjungan tidak bisa pada hari Sabtu atau Minggu.');
                 }
             }
         });

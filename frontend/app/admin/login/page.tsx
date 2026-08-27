@@ -2,6 +2,8 @@
 
 import { useActionState, useState } from "react";
 import { loginAdminAction } from "../../../lib/auth-actions";
+import Link from "next/link";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 const initialState = {
     error: "",
@@ -12,87 +14,89 @@ export default function AdminLoginPage() {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                    Portal Admin
-                </h2>
-                <p className="mt-2 text-center text-sm text-gray-600">
-                    Buku Tamu Pengadilan Agama Karawang
-                </p>
-            </div>
+        <div className="min-h-screen bg-[#11522A] flex flex-col font-sans">
+            <main className="flex-grow flex items-center justify-center p-4 py-12 relative overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none bg-repeat bg-left-top opacity-40" 
+                     style={{ backgroundImage: 'url("/images/batik-bg-cropped.png")', backgroundSize: '250px' }}>
+                </div>
+                
+                <Link href="/portal" className="absolute top-4 sm:top-6 left-4 sm:left-6 flex items-center gap-2 text-[#085C3B] font-semibold bg-white/70 px-4 py-2.5 rounded-lg shadow-sm backdrop-blur-md border border-[#085C3B]/20 transition-all z-20 group">
+                    <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" />
+                    <span className="hidden sm:inline">Kembali ke Pilihan Portal</span>
+                </Link>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
-                    <form action={formAction} className="space-y-6">
-                        {state?.error && (
-                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative text-sm">
-                                {state.error}
-                            </div>
-                        )}
-
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                Alamat Email
-                            </label>
-                            <div className="mt-1">
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    required
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    placeholder="Masukkan email"
-                                />
-                            </div>
+                <div className="w-full max-w-md flex flex-col items-center relative z-10">
+                    
+                    <div className="bg-[#FAF7F2]/90 backdrop-blur-md rounded-xl shadow-xl border border-[#E8E1D5]/50 border-t-[6px] border-t-[#D29C29] w-full p-6 sm:p-10 overflow-hidden animate-in zoom-in-95 duration-300">
+                        
+                        <div className="flex flex-col items-center mb-8">
+                            <img src="/images/logo-pa.png" alt="Logo PA Karawang" className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-md mb-4" />
+                            <h2 className="text-2xl font-bold text-[#1A1A1A] text-center">Portal Admin</h2>
+                            <p className="text-sm text-gray-500 mt-1 text-center">Buku Tamu Pengadilan Agama Karawang</p>
                         </div>
 
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                Kata Sandi
-                            </label>
-                            <div className="mt-1 relative">
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type={showPassword ? "text" : "password"}
-                                    autoComplete="current-password"
-                                    required
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm pr-10"
-                                    placeholder="Masukkan kata sandi"
-                                />
+                        <form action={formAction} className="space-y-6">
+                            {state?.error && (
+                                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg relative text-sm flex items-start gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                                    <span>{state.error}</span>
+                                </div>
+                            )}
+
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-semibold text-[#1A1A1A] mb-1.5">
+                                    Alamat Email
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        id="email"
+                                        name="email"
+                                        type="email"
+                                        autoComplete="email"
+                                        required
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#D29C29] focus:ring-[#D29C29]/20 text-sm text-[#1A1A1A] bg-white transition-colors"
+                                        placeholder="Masukkan email admin"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label htmlFor="password" className="block text-sm font-semibold text-[#1A1A1A] mb-1.5">
+                                    Kata Sandi
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        id="password"
+                                        name="password"
+                                        type={showPassword ? "text" : "password"}
+                                        autoComplete="current-password"
+                                        required
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-[#D29C29] focus:ring-[#D29C29]/20 text-sm text-[#1A1A1A] bg-white transition-colors pr-10"
+                                        placeholder="Masukkan kata sandi"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-[#D29C29] focus:outline-none transition-colors"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="pt-2">
                                 <button
-                                    type="button"
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500 focus:outline-none"
-                                    onClick={() => setShowPassword(!showPassword)}
+                                    type="submit"
+                                    disabled={isPending}
+                                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-bold text-white bg-[#085C3B] hover:bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#085C3B] disabled:opacity-50"
                                 >
-                                    {showPassword ? (
-                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                        </svg>
-                                    ) : (
-                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                    )}
+                                    {isPending ? "Sedang masuk..." : "Masuk"}
                                 </button>
                             </div>
-                        </div>
-
-                        <div>
-                            <button
-                                type="submit"
-                                disabled={isPending}
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                            >
-                                {isPending ? "Sedang masuk..." : "Masuk"}
-                            </button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

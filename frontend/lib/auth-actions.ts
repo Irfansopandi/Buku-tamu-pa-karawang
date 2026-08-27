@@ -63,7 +63,7 @@ export async function loginOfficerAction(prevState: unknown, formData: FormData)
         return { error: "Terjadi kesalahan yang tidak terduga. Silakan coba lagi." };
     }
 
-    redirect("/officer/dashboard");
+    redirect("/officer/dashboard?login=success");
 }
 
 export async function logoutAdminAction() {

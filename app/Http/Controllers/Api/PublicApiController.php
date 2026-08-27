@@ -96,4 +96,69 @@ class PublicApiController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Search for a ticket.
+     */
+    public function searchTicket(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $request->validate([
+            'query' => 'required|string'
+        ]);
+
+        $query = $request->input('query');
+
+        $visits = Visit::with(['visitor'])
+            ->where('visit_number', $query)
+            ->orWhereHas('visitor', function ($q) use ($query) {
+                $q->where('nik', $query)
+                  ->orWhere('visitor_code', $query);
+            })
+            ->orderBy('id', 'desc')
+            ->get();
+
+        if ($visits->isEmpty()) {
+            return response()->json(['message' => 'Tiket kunjungan tidak ditemukan.'], 404);
+        }
+
+        $data = $visits->map(function ($visit) {
+            // Generate a new QR token so it can be re-rendered
+            [$rawToken, $tokenHash] = $this->visitService->generateQrToken();
+            $visit->update(['qr_token_hash' => $tokenHash]);
+            
+            return [
+                'visitor_code' => $visit->visitor->visitor_code,
+                'visit_number' => $visit->visit_number,
+                'full_name' => $visit->visitor->full_name,
+                'visit_date' => $visit->visit_date,
+                'qr_token' => $rawToken
+            ];
+        });
+
+        return response()->json([
+            'message' => 'Ticket found.',
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * Check visitor by NIK for auto-fill in registration form.
+     */
+    public function checkVisitorByNik($nik): JsonResponse
+    {
+        $visitor = Visitor::where('nik', $nik)->first();
+
+        if (!$visitor) {
+            return response()->json(['message' => 'Visitor not found.'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Visitor found.',
+            'data' => [
+                'full_name' => $visitor->full_name,
+                'phone' => $visitor->phone,
+                'email' => $visitor->email,
+            ]
+        ]);
+    }
 }

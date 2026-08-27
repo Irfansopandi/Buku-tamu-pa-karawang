@@ -26,9 +26,23 @@ export default function Navbar() {
     const interval = setInterval(updateTime, 1000); // Update every second
     return () => clearInterval(interval);
   }, []);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <nav className="w-full bg-white border-b border-gray-100 sticky top-0 z-50">
+    <nav className={`w-full sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/40 backdrop-blur-lg shadow-sm border-b border-gray-200' : 'bg-white border-b border-gray-100'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           
@@ -43,11 +57,11 @@ export default function Navbar() {
           </div>
 
           {/* RIGHT: Date / Time */}
-          <div className="flex items-center gap-2 sm:gap-4 border-l border-gray-200 pl-3 sm:pl-4 py-1">
-            <div className="text-gray-400 hidden sm:block">
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+          <div className={`flex items-center gap-2 sm:gap-4 border-l pl-3 sm:pl-4 py-1 transition-colors duration-300 ${isScrolled ? 'border-gray-400' : 'border-gray-200'}`}>
+            <div className={`hidden sm:block transition-colors duration-300 ${isScrolled ? 'text-gray-700' : 'text-gray-400'}`}>
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
             </div>
-            <div className="text-[10px] sm:text-xs text-gray-500 font-medium leading-[1.3] w-auto whitespace-nowrap text-right sm:text-left">
+            <div className={`text-[10px] sm:text-xs font-medium leading-[1.3] w-auto whitespace-nowrap text-right sm:text-left transition-colors duration-300 ${isScrolled ? 'text-gray-700' : 'text-gray-500'}`}>
               {currentTime ? (
                 <>
                   <div className="text-gray-900 font-bold">{currentTime.split('|')[0]}</div>

@@ -1,28 +1,98 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { ChevronDown, CheckCircle2 } from "lucide-react";
 import Navbar from "../components/public/Navbar";
 import Footer from "../components/public/Footer";
 import WelcomeModal from "@/components/public/WelcomeModal";
+import TicketCard from "@/components/public/TicketCard";
+import QRCode from 'qrcode';
+import { fetchApi } from "@/lib/api";
 
 export default function LandingPage() {
-  const [searchNik, setSearchNik] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchState, setSearchState] = useState<"default" | "loading" | "error" | "not_found" | "found">("default");
+  const [ticketDataList, setTicketDataList] = useState<any[]>([]);
+  const [selectedTicketIndex, setSelectedTicketIndex] = useState<number>(0);
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  
+  const [isTicketDropdownOpen, setIsTicketDropdownOpen] = useState(false);
+  const ticketDropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleSearchTicket = (e: React.FormEvent) => {
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (ticketDropdownRef.current && !ticketDropdownRef.current.contains(event.target as Node)) {
+        setIsTicketDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSearchTicket = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchNik || searchNik.length < 16) {
+    const cleanQuery = searchQuery.trim();
+    if (!cleanQuery) {
       setSearchState("error");
       return;
     }
     
     setSearchState("loading");
+    setTicketDataList([]);
     
-    // Simulate API call that will always fail because the endpoint does not exist
-    setTimeout(() => {
+    try {
+      const response = await fetchApi(`/api/visits/search?query=${encodeURIComponent(cleanQuery)}`, {
+        method: 'GET'
+      });
+      
+      const dataArray = Array.isArray(response.data) ? response.data : [response.data];
+
+      if (dataArray.length === 0) {
+          setSearchState("not_found");
+          return;
+      }
+      
+      const qrToken = dataArray[0].qr_token;
+      const generatedQrUrl = await QRCode.toDataURL(qrToken, {
+          width: 300,
+          margin: 1,
+          errorCorrectionLevel: 'M',
+          color: {
+              dark: '#000000',
+              light: '#ffffff'
+          }
+      });
+      
+      setQrDataUrl(generatedQrUrl);
+      setTicketDataList(dataArray);
+      setSelectedTicketIndex(0);
+      setSearchState("found");
+    } catch (error) {
+      console.error("Search error:", error);
       setSearchState("not_found");
-    }, 1500);
+    }
+  };
+
+  const handleTicketSelectionChange = async (idx: number) => {
+      setSelectedTicketIndex(idx);
+      setIsTicketDropdownOpen(false);
+      
+      try {
+          const qrToken = ticketDataList[idx].qr_token;
+          const generatedQrUrl = await QRCode.toDataURL(qrToken, {
+              width: 300,
+              margin: 1,
+              errorCorrectionLevel: 'M',
+              color: {
+                  dark: '#000000',
+                  light: '#ffffff'
+              }
+          });
+          setQrDataUrl(generatedQrUrl);
+      } catch (err) {
+          console.error("Failed to generate QR on selection change", err);
+      }
   };
 
   return (
@@ -121,7 +191,7 @@ export default function LandingPage() {
 
            {/* SEARCH TICKET CARD */}
            <section className="px-4 sm:px-6 lg:px-8">
-              <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6 sm:p-8">
+              <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.1)] border border-gray-100 p-6 sm:p-8">
               <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-center justify-between">
                  
                  <div className="flex items-center gap-4 md:w-1/2 md:border-r md:border-gray-200 md:pr-6">
@@ -129,25 +199,24 @@ export default function LandingPage() {
                        {/* Clipboard Search Icon */}
                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 2h4a2 2 0 0 1 2 2v2"/><path d="M14 6v2a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"/><path d="M4 10V6a2 2 0 0 1 2-2"/><path d="M4 14v6a2 2 0 0 0 2 2h4"/><path d="M22 22l-4.5-4.5"/><circle cx="13" cy="13" r="4.5"/></svg>
                     </div>
-                    <div>
-                       <h3 className="text-sm font-bold text-gray-900 mb-1">SUDAH MELAKUKAN REGISTRASI?</h3>
-                       <p className="text-gray-500 text-[13px] leading-relaxed">Temukan kembali tiket kunjungan Anda<br className="hidden sm:block"/> menggunakan NIK.</p>
-                    </div>
-                 </div>
+                     <div>
+                        <h3 className="text-sm font-bold text-gray-900 mb-1">SUDAH MELAKUKAN REGISTRASI?</h3>
+                        <p className="text-gray-500 text-[13px] leading-relaxed">Temukan kembali tiket kunjungan Anda<br className="hidden sm:block"/> menggunakan NIK, Kode, atau Antrean.</p>
+                     </div>
+                  </div>
 
-                 <div className="w-full md:w-1/2 flex-shrink-0 md:pl-6">
-                     <form onSubmit={handleSearchTicket} className="flex flex-col w-full">
-                        <label htmlFor="search_nik" className="text-sm font-bold text-gray-900 mb-2">Masukkan NIK</label>
-                        <div className="flex flex-row items-center gap-2 sm:gap-3 w-full">
-                           <input 
-                              type="text" 
-                              id="search_nik"
-                              value={searchNik}
-                              onChange={(e) => setSearchNik(e.target.value.replace(/[^0-9]/g, ''))}
-                              placeholder="Contoh: 3275123456789012"
-                              className={`flex-grow min-w-0 px-4 py-2.5 border ${searchState === 'error' ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-primary focus:border-primary'} rounded-lg focus:outline-none focus:ring-2 shadow-sm text-gray-900 text-sm`}
-                              maxLength={16}
-                           />
+                  <div className="w-full md:w-1/2 flex-shrink-0 md:pl-6">
+                      <form onSubmit={handleSearchTicket} className="flex flex-col w-full">
+                         <label htmlFor="search_query" className="text-sm font-bold text-gray-900 mb-2">Masukkan NIK / Kode Visitor / No Antrean</label>
+                         <div className="flex flex-row items-center gap-2 sm:gap-3 w-full">
+                            <input 
+                               type="text" 
+                               id="search_query"
+                               value={searchQuery}
+                               onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
+                               placeholder="Contoh: 3275... atau PA001"
+                               className={`flex-grow min-w-0 px-4 py-2.5 border ${searchState === 'error' ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-primary focus:border-primary'} rounded-lg focus:outline-none focus:ring-2 shadow-sm text-gray-900 text-sm font-medium`}
+                            />
                            
                            <button 
                               type="submit" 
@@ -163,13 +232,75 @@ export default function LandingPage() {
                                 </>
                               )}
                            </button>
-                        </div>
-                        {searchState === 'error' && <span className="text-red-500 text-xs mt-1.5">NIK harus 16 digit angka.</span>}
-                     </form>
-                 </div>
+                         </div>
+                         {searchState === 'error' && <span className="text-red-500 text-xs mt-1.5">Mohon masukkan kata kunci pencarian.</span>}
+                      </form>
+                  </div>
               </div>
 
               {/* SEARCH RESULT CONTAINER */}
+              {searchState === 'found' && ticketDataList.length > 0 && (
+                 <div className="mt-8 pt-8 border-t border-gray-100">
+                    
+                    {ticketDataList.length > 1 && (
+                        <div className="mb-6 flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-300 w-full px-4 sm:px-0">
+                            <label className="text-sm font-semibold text-gray-700 mb-2">Pilih Tanggal Kunjungan Anda:</label>
+                            
+                            <div className="relative w-full max-w-sm" ref={ticketDropdownRef}>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsTicketDropdownOpen(!isTicketDropdownOpen)}
+                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 text-sm text-left flex items-center justify-between transition-colors bg-white shadow-sm font-medium
+                                        ${isTicketDropdownOpen ? 'border-primary focus:ring-primary/20' : 'border-gray-300 focus:border-primary hover:border-gray-400'}
+                                        text-[#1A1A1A]`}
+                                >
+                                    <span className="truncate pr-4">
+                                        {new Date(ticketDataList[selectedTicketIndex].visit_date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} - {ticketDataList[selectedTicketIndex].visit_number}
+                                    </span>
+                                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isTicketDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {isTicketDropdownOpen && (
+                                    <div className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                        <ul className="max-h-60 overflow-y-auto p-2 space-y-1" role="listbox">
+                                            {ticketDataList.map((ticket, idx) => (
+                                                <li key={idx} role="option" aria-selected={selectedTicketIndex === idx}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleTicketSelectionChange(idx)}
+                                                        className={`w-full text-left px-4 py-3 rounded-lg text-sm transition-all flex items-center justify-between group active:scale-[0.99]
+                                                            ${selectedTicketIndex === idx ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-primary active:bg-gray-100'}`}
+                                                    >
+                                                        <span className="truncate">
+                                                            {new Date(ticket.visit_date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} - {ticket.visit_number}
+                                                        </span>
+                                                        {selectedTicketIndex === idx && <CheckCircle2 className="w-5 h-5 text-primary" />}
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <TicketCard 
+                        visitorCode={ticketDataList[selectedTicketIndex].visitor_code}
+                        visitNumber={ticketDataList[selectedTicketIndex].visit_number}
+                        fullName={ticketDataList[selectedTicketIndex].full_name}
+                        visitDate={ticketDataList[selectedTicketIndex].visit_date}
+                        qrDataUrl={qrDataUrl}
+                        closeText="TUTUP"
+                        isSearch={true}
+                        onClose={() => {
+                            setSearchState("default");
+                            setTicketDataList([]);
+                        }}
+                    />
+                 </div>
+              )}
+
               {searchState === 'not_found' && (
                  <div className="mt-6 p-4 bg-red-50 text-red-700 rounded-lg border border-red-100 flex items-center gap-3">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
