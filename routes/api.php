@@ -27,6 +27,7 @@ Route::middleware(['auth:officer', 'is_active'])->prefix('officer')->group(funct
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/scan', [OfficerApiController::class, 'scan']);
     Route::post('/visits/{id}/check-in', [OfficerApiController::class, 'checkIn']);
+    Route::get('/visits', [OfficerApiController::class, 'getVisits']);
 });
 
 // Admin Routes

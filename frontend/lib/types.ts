@@ -67,4 +67,38 @@ export interface DashboardStats {
     total_visits_this_month: number;
 }
 
+export interface VisitScanData {
+    id: number;
+    visit_number: string;
+    visit_date: string | null;
+    status: string;
+    checked_in_at: string | null;
+    completed_at: string | null;
+    service: {
+        id: number;
+        name: string;
+    } | null;
+    visitor: {
+        visitor_code: string;
+        name: string;
+    };
+    members_count: number;
+    group_size: number;
+}
 
+export interface PaginatedVisitsResponse {
+    data: VisitScanData[];
+    meta: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        total_people: number;
+    };
+    links: {
+        first: string | null;
+        last: string | null;
+        prev: string | null;
+        next: string | null;
+    };
+}

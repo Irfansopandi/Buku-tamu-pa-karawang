@@ -47,4 +47,30 @@ class OfficerApiController extends Controller
             'data' => new VisitResource($visit->load(['visitor', 'service', 'members']))
         ]);
     }
+
+    public function getVisits(Request $request)
+    {
+        $today = \Carbon\Carbon::today('Asia/Jakarta');
+        
+        $query = Visit::with(['visitor', 'service', 'members'])
+            ->whereDate('checked_in_at', $today);
+            
+        $totalVisits = clone $query;
+        $totalVisitsCount = $totalVisits->count();
+        
+        $totalMembersCount = \Illuminate\Support\Facades\DB::table('visit_members')
+            ->join('visits', 'visit_members.visit_id', '=', 'visits.id')
+            ->whereDate('visits.checked_in_at', $today)
+            ->count();
+            
+        $totalPeople = $totalVisitsCount + $totalMembersCount;
+        
+        $paginator = $query->orderBy('checked_in_at', 'desc')->paginate(10);
+        
+        return VisitResource::collection($paginator)->additional([
+            'meta' => [
+                'total_people' => (int) $totalPeople
+            ]
+        ]);
+    }
 }
