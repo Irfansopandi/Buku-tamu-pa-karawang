@@ -28,6 +28,7 @@ export async function loginAdminAction(prevState: unknown, formData: FormData) {
 
         const cookieStore = await cookies();
         cookieStore.set("admin_token", response.token, COOKIE_OPTIONS);
+        cookieStore.set("admin_name", response.user.name, COOKIE_OPTIONS);
         
     } catch (err: unknown) {
         if (err instanceof ApiError) {
@@ -36,7 +37,7 @@ export async function loginAdminAction(prevState: unknown, formData: FormData) {
         return { error: "Terjadi kesalahan yang tidak terduga. Silakan coba lagi." };
     }
 
-    redirect("/admin/dashboard");
+    redirect("/admin/dashboard?login=success");
 }
 
 export async function loginOfficerAction(prevState: unknown, formData: FormData) {
@@ -55,6 +56,7 @@ export async function loginOfficerAction(prevState: unknown, formData: FormData)
 
         const cookieStore = await cookies();
         cookieStore.set("officer_token", response.token, COOKIE_OPTIONS);
+        cookieStore.set("officer_name", response.user.name, COOKIE_OPTIONS);
 
     } catch (err: unknown) {
         if (err instanceof ApiError) {

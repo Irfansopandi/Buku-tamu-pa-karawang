@@ -4,6 +4,8 @@ import { useActionState, useState } from "react";
 import { loginAdminAction } from "../../../lib/auth-actions";
 import Link from "next/link";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import AdminToast from "../../../components/admin/AdminToast";
+import { Suspense } from "react";
 
 const initialState = {
     error: "",
@@ -15,6 +17,9 @@ export default function AdminLoginPage() {
 
     return (
         <div className="min-h-screen bg-[#11522A] flex flex-col font-sans">
+            <Suspense fallback={null}>
+                <AdminToast />
+            </Suspense>
             <main className="flex-grow flex items-center justify-center p-4 py-12 relative overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none bg-repeat bg-left-top opacity-40" 
                      style={{ backgroundImage: 'url("/images/batik-bg-cropped.png")', backgroundSize: '250px' }}>

@@ -269,12 +269,12 @@ export default function LandingPage() {
                                                         type="button"
                                                         onClick={() => handleTicketSelectionChange(idx)}
                                                         className={`w-full text-left px-4 py-3 rounded-lg text-sm transition-all flex items-center justify-between group active:scale-[0.99]
-                                                            ${selectedTicketIndex === idx ? 'bg-primary/10 text-primary font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-primary active:bg-gray-100'}`}
+                                                            ${selectedTicketIndex === idx ? 'bg-primary text-white font-bold shadow-md shadow-primary/20' : 'text-gray-700 hover:bg-primary/10 hover:text-primary active:bg-primary/20 font-medium'}`}
                                                     >
                                                         <span className="truncate">
                                                             {new Date(ticket.visit_date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} - {ticket.visit_number}
                                                         </span>
-                                                        {selectedTicketIndex === idx && <CheckCircle2 className="w-5 h-5 text-primary" />}
+                                                        {selectedTicketIndex === idx && <CheckCircle2 className="w-5 h-5 text-white" />}
                                                     </button>
                                                 </li>
                                             ))}

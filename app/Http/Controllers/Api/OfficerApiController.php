@@ -23,7 +23,7 @@ class OfficerApiController extends Controller
         }
 
         return response()->json([
-            'data' => new VisitResource($visit)
+            'data' => new \App\Http\Resources\OfficerScanResource($visit)
         ]);
     }
 
@@ -37,6 +37,14 @@ class OfficerApiController extends Controller
             ], 422);
         }
 
+        $today = \Carbon\Carbon::today('Asia/Jakarta')->format('Y-m-d');
+        $visitDate = \Carbon\Carbon::parse($visit->visit_date)->format('Y-m-d');
+        if ($visitDate !== $today) {
+            return response()->json([
+                'message' => 'Tiket hanya dapat digunakan pada tanggal kunjungan (' . $visitDate . ').'
+            ], 422);
+        }
+
         $visit->update([
             'status' => 'checked_in',
             'checked_in_at' => now()
@@ -44,7 +52,7 @@ class OfficerApiController extends Controller
 
         return response()->json([
             'message' => 'Successfully checked in.',
-            'data' => new VisitResource($visit->load(['visitor', 'service', 'members']))
+            'data' => new \App\Http\Resources\OfficerScanResource($visit->load(['visitor', 'service', 'members']))
         ]);
     }
 
@@ -65,7 +73,10 @@ class OfficerApiController extends Controller
             
         $totalPeople = $totalVisitsCount + $totalMembersCount;
         
-        $paginator = $query->orderBy('checked_in_at', 'desc')->paginate(10);
+        $paginator = $query
+            ->orderBy('checked_in_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate(10);
         
         return VisitResource::collection($paginator)->additional([
             'meta' => [

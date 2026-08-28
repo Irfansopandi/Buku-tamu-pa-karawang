@@ -21,3 +21,11 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# QA Testing Files
+test_qa_*.php
+database/seeders/QaTestSeeder.php
+
+test_api.php
+test_qa.php
+scratch/

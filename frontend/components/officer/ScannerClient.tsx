@@ -326,20 +326,24 @@ export default function ScannerClient() {
                                     <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Data Pengunjung</h4>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-sm">
                                         <div>
+                                            <p className="text-gray-500 mb-1">Nomor Antrian</p>
+                                            <p className="font-medium text-gray-900 font-mono">{scanResult.visit_number || "-"}</p>
+                                        </div>
+                                        <div>
                                             <p className="text-gray-500 mb-1">Nama Lengkap</p>
                                             <p className="font-medium text-gray-900 break-words">{scanResult.visitor?.name || "Tidak tersedia"}</p>
                                         </div>
                                         <div>
                                             <p className="text-gray-500 mb-1">NIK</p>
-                                            <p className="font-medium text-gray-900 italic text-gray-400">Tersembunyi</p>
+                                            <p className="font-medium text-gray-900">{scanResult.visitor?.nik || "-"}</p>
                                         </div>
                                         <div>
                                             <p className="text-gray-500 mb-1">Nomor HP</p>
-                                            <p className="font-medium text-gray-900 italic text-gray-400">Tersembunyi</p>
+                                            <p className="font-medium text-gray-900">{scanResult.visitor?.phone || "-"}</p>
                                         </div>
                                         <div>
                                             <p className="text-gray-500 mb-1">Email</p>
-                                            <p className="font-medium text-gray-900 italic text-gray-400">Tersembunyi</p>
+                                            <p className="font-medium text-gray-900">{scanResult.visitor?.email || "-"}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -374,7 +378,19 @@ export default function ScannerClient() {
                                 <div className="border-t border-gray-100 pt-4">
                                     <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Anggota Rombongan</h4>
                                     <div className="text-sm text-gray-600">
-                                        <p className="italic text-gray-400">Detail nama anggota rombongan tidak ditampilkan</p>
+                                        {scanResult.group_size <= 1 ? (
+                                            <p>Belum ada anggota rombongan.</p>
+                                        ) : (
+                                            <ol className="list-decimal list-inside space-y-1">
+                                                {scanResult.members && scanResult.members.length > 0 ? (
+                                                    scanResult.members.map((member, index) => (
+                                                        <li key={index} className="font-medium text-gray-900">{member.name}</li>
+                                                    ))
+                                                ) : (
+                                                    <p>Data anggota tidak tersedia dari API.</p>
+                                                )}
+                                            </ol>
+                                        )}
                                     </div>
                                 </div>
 
@@ -466,6 +482,7 @@ export default function ScannerClient() {
                             <table className="w-full text-sm text-left text-gray-500">
                                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
                                     <tr>
+                                        <th scope="col" className="px-6 py-3 w-16 text-center">No.</th>
                                         <th scope="col" className="px-6 py-3">No. Tiket</th>
                                         <th scope="col" className="px-6 py-3">Nama Lengkap</th>
                                         <th scope="col" className="px-6 py-3">Layanan</th>
@@ -474,13 +491,17 @@ export default function ScannerClient() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {paginatedVisits.data.map((visit) => {
+                                    {paginatedVisits.data.map((visit, index) => {
+                                        const noUrut = paginatedVisits.meta.total - ((paginatedVisits.meta.current_page - 1) * paginatedVisits.meta.per_page + index);
                                         const timeStr = visit.checked_in_at 
-                                            ? new Date(visit.checked_in_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) 
-                                            : new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                                            ? new Date(visit.checked_in_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) 
+                                            : new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
                                         
                                         return (
                                             <tr key={visit.id} className="bg-white border-b hover:bg-gray-50">
+                                                <td className="px-6 py-4 font-bold text-gray-700 text-center">
+                                                    {noUrut}
+                                                </td>
                                                 <td className="px-6 py-4 font-mono text-xs text-gray-500">
                                                     {visit.visit_number}
                                                 </td>

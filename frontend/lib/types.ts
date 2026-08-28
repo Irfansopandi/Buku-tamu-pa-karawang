@@ -81,9 +81,13 @@ export interface VisitScanData {
     visitor: {
         visitor_code: string;
         name: string;
+        nik?: string;
+        phone?: string;
+        email?: string;
     };
     members_count: number;
     group_size: number;
+    members?: Member[];
 }
 
 export interface PaginatedVisitsResponse {

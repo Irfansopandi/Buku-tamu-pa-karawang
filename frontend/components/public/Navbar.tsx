@@ -65,7 +65,7 @@ export default function Navbar() {
               {currentTime ? (
                 <>
                   <div className="text-gray-900 font-bold">{currentTime.split('|')[0]}</div>
-                  <div>{currentTime.split('|')[1]}</div>
+                  <div>{currentTime.split('|')[1]} WIB</div>
                 </>
               ) : (
                 <>
