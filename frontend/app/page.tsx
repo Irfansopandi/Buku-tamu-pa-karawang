@@ -68,8 +68,10 @@ export default function LandingPage() {
       setTicketDataList(dataArray);
       setSelectedTicketIndex(0);
       setSearchState("found");
-    } catch (error) {
-      console.error("Search error:", error);
+    } catch (error: any) {
+      if (error?.status !== 404) {
+        console.error("Search error:", error);
+      }
       setSearchState("not_found");
     }
   };

@@ -485,6 +485,8 @@ export default function ScannerClient() {
                                         <th scope="col" className="px-6 py-3 w-16 text-center">No.</th>
                                         <th scope="col" className="px-6 py-3">No. Tiket</th>
                                         <th scope="col" className="px-6 py-3">Nama Lengkap</th>
+                                        <th scope="col" className="px-6 py-3">NIK</th>
+                                        <th scope="col" className="px-6 py-3">Email / No. HP</th>
                                         <th scope="col" className="px-6 py-3">Layanan</th>
                                         <th scope="col" className="px-6 py-3 text-center">Jumlah Orang</th>
                                         <th scope="col" className="px-6 py-3 text-right">Waktu</th>
@@ -507,6 +509,15 @@ export default function ScannerClient() {
                                                 </td>
                                                 <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                                     {visit.visitor?.name || "Tidak diketahui"}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {visit.visitor?.nik || '-'}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col text-sm">
+                                                        <span className="text-gray-900 font-medium">{visit.visitor?.email || '-'}</span>
+                                                        <span className="text-gray-500">{visit.visitor?.phone || '-'}</span>
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     {visit.service?.name || "-"}

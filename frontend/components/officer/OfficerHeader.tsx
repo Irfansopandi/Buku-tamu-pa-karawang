@@ -5,7 +5,7 @@ import { logoutOfficerAction } from "../../lib/auth-actions";
 import { LogOut, Loader2 } from "lucide-react";
 import Swal, { SweetAlertResult } from "sweetalert2";
 
-export default function OfficerHeader() {
+export default function OfficerHeader({ officerName = "Petugas" }: { officerName?: string }) {
     const [isPending, startTransition] = useTransition();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [currentTime, setCurrentTime] = useState<string>("");
@@ -82,8 +82,8 @@ export default function OfficerHeader() {
 
                         {/* Page Name */}
                         <div className="hidden sm:flex flex-col text-right mr-4 lg:mr-6 pr-4 lg:pr-6 border-r border-gray-200">
-                            <span className="text-xs text-gray-500 font-medium">Sistem Buku Tamu</span>
-                            <span className="text-sm font-bold text-[#D29C29]">Halaman Petugas</span>
+                            <span className="text-xs text-gray-800 font-bold uppercase tracking-wider">HALAMAN PETUGAS</span>
+                            <span className="text-sm font-bold text-[#D29C29]">{officerName}</span>
                         </div>
                         
                         <button
@@ -103,7 +103,7 @@ export default function OfficerHeader() {
             
             {/* Mobile indicator for page name and time */}
             <div className="sm:hidden bg-[#FAF7F2] w-full py-2 px-4 flex flex-col items-center border-b border-gray-200 gap-1">
-                <span className="text-[11px] font-bold text-[#D29C29] tracking-wide uppercase">Halaman Petugas - Buku Tamu</span>
+                <span className="text-[11px] font-bold text-[#D29C29] tracking-wide uppercase">HALAMAN PETUGAS - {officerName}</span>
                 {currentTime && (
                     <span className="text-[10px] text-gray-500 font-medium">{datePart} • {timePart} WIB</span>
                 )}

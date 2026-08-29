@@ -1,7 +1,8 @@
 export interface Service {
     id: number;
     name: string;
-    description: string | null;
+    is_active: boolean;
+    sort_order: number;
 }
 
 export interface Member {
@@ -60,11 +61,48 @@ export interface LoginResponse<T> {
     user: T;
 }
 
+export interface RecentVisitData {
+    sequence_number: number;
+    visit_number: string;
+    visitor_name: string;
+    visitor_email?: string | null;
+    visitor_phone?: string | null;
+    service_name: string;
+    people_count: number;
+    checked_in_at?: string | null;
+    created_at?: string | null;
+}
+
+export interface DailyAnalytics {
+    date: string;
+    tickets: number;
+    people: number;
+}
+
+export interface MonthlyAnalytics {
+    month: string;
+    tickets: number;
+    people: number;
+}
+
+export interface AnalyticsData {
+    daily_filter: string;
+    monthly_filter: string;
+    daily: DailyAnalytics[];
+    monthly: MonthlyAnalytics[];
+}
+
 export interface DashboardStats {
     total_visits_today: number;
+    total_people_today: number;
     active_visits: number;
+    pending_people_today: number;
     completed_today: number;
+    scanned_people_today: number;
     total_visits_this_month: number;
+    recent_scanned: RecentVisitData[];
+    recent_pending: RecentVisitData[];
+    analytics?: AnalyticsData;
 }
 
 export interface VisitScanData {
@@ -104,5 +142,9 @@ export interface PaginatedVisitsResponse {
         last: string | null;
         prev: string | null;
         next: string | null;
+    };
+    summary?: {
+        scanned: { tickets: number; people: number; };
+        pending: { tickets: number; people: number; };
     };
 }
