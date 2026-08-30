@@ -196,14 +196,14 @@ export default function LandingPage() {
               <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.1)] border border-gray-100 p-6 sm:p-8">
               <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start md:items-center justify-between">
                  
-                 <div className="flex items-center gap-4 md:w-1/2 md:border-r md:border-gray-200 md:pr-6">
-                    <div className="flex-shrink-0 flex items-center justify-center w-16 h-16 bg-[#e8f1ea] rounded-2xl text-primary-dark">
-                       {/* Clipboard Search Icon */}
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 2h4a2 2 0 0 1 2 2v2"/><path d="M14 6v2a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"/><path d="M4 10V6a2 2 0 0 1 2-2"/><path d="M4 14v6a2 2 0 0 0 2 2h4"/><path d="M22 22l-4.5-4.5"/><circle cx="13" cy="13" r="4.5"/></svg>
-                    </div>
+                  <div className="flex items-center gap-3 sm:gap-4 md:w-1/2 md:border-r md:border-gray-200 md:pr-6">
+                     <div className="flex-shrink-0 flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-[#e8f1ea] rounded-2xl text-primary-dark">
+                        {/* Clipboard Search Icon */}
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 2h4a2 2 0 0 1 2 2v2"/><path d="M14 6v2a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"/><path d="M4 10V6a2 2 0 0 1 2-2"/><path d="M4 14v6a2 2 0 0 0 2 2h4"/><path d="M22 22l-4.5-4.5"/><circle cx="13" cy="13" r="4.5"/></svg>
+                     </div>
                      <div>
-                        <h3 className="text-sm font-bold text-gray-900 mb-1">SUDAH MELAKUKAN REGISTRASI?</h3>
-                        <p className="text-gray-500 text-[13px] leading-relaxed">Temukan kembali tiket kunjungan Anda<br className="hidden sm:block"/> menggunakan NIK, Kode, atau Antrean.</p>
+                        <h3 className="text-[13px] sm:text-sm font-bold text-gray-900 mb-1 whitespace-nowrap">SUDAH MELAKUKAN REGISTRASI?</h3>
+                        <p className="text-gray-500 text-[12px] sm:text-[13px] leading-relaxed">Temukan kembali tiket kunjungan Anda<br className="hidden sm:block"/> menggunakan NIK, Kode, atau Antrean.</p>
                      </div>
                   </div>
 
@@ -345,7 +345,7 @@ export default function LandingPage() {
                        <div className="bg-primary-dark text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-bold text-[9px] sm:text-[10px]">1</div>
                        <h4 className="text-xs sm:text-sm font-bold text-primary-dark">Registrasi</h4>
                     </div>
-                    <p className="text-gray-500 text-[11px] sm:text-[13px] leading-relaxed">Isi data diri dan detail<br className="hidden lg:block"/> kunjungan Anda.</p>
+                    <p className="text-gray-500 text-[11px] sm:text-[13px] leading-relaxed">Isi data diri dan detail<br /> kunjungan Anda.</p>
                  </div>
 
                  {/* Step 2 */}
@@ -357,7 +357,7 @@ export default function LandingPage() {
                        <div className="bg-primary-dark text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-bold text-[9px] sm:text-[10px]">2</div>
                        <h4 className="text-xs sm:text-sm font-bold text-primary-dark">Konfirmasi</h4>
                     </div>
-                    <p className="text-gray-500 text-[11px] sm:text-[13px] leading-relaxed">Periksa kembali data<br className="hidden lg:block"/> dan konfirmasi.</p>
+                    <p className="text-gray-500 text-[11px] sm:text-[13px] leading-relaxed">Periksa kembali data<br /> dan konfirmasi.</p>
                  </div>
 
                  {/* Step 3 */}
@@ -369,7 +369,7 @@ export default function LandingPage() {
                        <div className="bg-primary-dark text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-bold text-[9px] sm:text-[10px]">3</div>
                        <h4 className="text-xs sm:text-sm font-bold text-primary-dark">Dapatkan QR</h4>
                     </div>
-                    <p className="text-gray-500 text-[11px] sm:text-[13px] leading-relaxed">Simpan tiket digital<br className="hidden lg:block"/> berupa QR Code.</p>
+                    <p className="text-gray-500 text-[11px] sm:text-[13px] leading-relaxed">Simpan tiket digital<br /> berupa QR Code.</p>
                  </div>
 
                  {/* Step 4 */}
@@ -381,9 +381,18 @@ export default function LandingPage() {
                        <div className="bg-primary-dark text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-bold text-[9px] sm:text-[10px]">4</div>
                        <h4 className="text-xs sm:text-sm font-bold text-primary-dark">Petugas</h4>
                     </div>
-                    <p className="text-gray-500 text-[11px] sm:text-[13px] leading-relaxed">Tunjukkan QR untuk<br className="hidden lg:block"/> proses pelayanan.</p>
+                    <p className="text-gray-500 text-[11px] sm:text-[13px] leading-relaxed">Tunjukkan QR untuk<br /> proses pelayanan.</p>
                  </div>
 
+              </div>
+
+              {/* Note for Tutorial */}
+              <div className="mt-12 md:mt-16 text-center flex flex-col items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4">
+                 <div className="flex items-start sm:items-center max-w-lg text-left sm:text-center">
+                    <p className="text-gray-700 text-[13px] sm:text-sm font-medium leading-relaxed">
+                       Masih belum paham? <span className="text-primary-dark font-bold">Yuk, lihat panduan lengkapnya</span> dengan mengklik tombol <strong className="bg-primary-dark text-white px-2 py-0.5 rounded-full text-[10px] sm:text-xs mx-1">?</strong> di pojok kanan bawah.
+                    </p>
+                 </div>
               </div>
            </div>
         </section>

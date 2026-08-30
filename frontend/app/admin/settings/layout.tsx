@@ -5,7 +5,7 @@ import { SidebarProvider } from "../../../components/admin/SidebarContext";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 
-export default async function AdminVisitorsLayout({
+export default async function AdminSettingsLayout({
     children,
 }: {
     children: React.ReactNode;

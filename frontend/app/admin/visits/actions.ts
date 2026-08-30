@@ -12,6 +12,7 @@ export interface AdminVisitsParams {
     year?: string;
     status?: string;
     scanned_only?: boolean;
+    pending_only?: boolean;
 }
 
 export async function getAdminVisits(params: AdminVisitsParams): Promise<PaginatedVisitsResponse | null> {
@@ -28,6 +29,7 @@ export async function getAdminVisits(params: AdminVisitsParams): Promise<Paginat
             queryParams.append('year', params.year);
         }
         if (params.scanned_only) queryParams.append('scanned_only', 'true');
+        if (params.pending_only) queryParams.append('pending_only', 'true');
 
         const response = await fetchApiServer(`/api/admin/visits?${queryParams.toString()}`, "admin", { cache: "no-store" });
         return response || null;

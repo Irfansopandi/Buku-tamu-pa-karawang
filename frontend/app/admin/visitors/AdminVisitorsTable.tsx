@@ -4,8 +4,9 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { getAdminVisits } from '../visits/actions';
 import { PaginatedVisitsResponse } from '@/lib/types';
-import { Search, Calendar, ChevronLeft, ChevronRight, Activity, Clock, Eye, X, ChevronDown } from 'lucide-react';
+import { Search, Calendar, ChevronLeft, ChevronRight, Activity, Clock, Eye, X, ChevronDown, Printer, Users } from 'lucide-react';
 import { VisitScanData } from '@/lib/types';
+import ReportPrintView from './ReportPrintView';
 
 function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 'scanned' | 'pending' }) {
     const searchParams = useSearchParams();
@@ -30,6 +31,9 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
     
     const [isUpdating, setIsUpdating] = useState(true);
     const [isError, setIsError] = useState(false);
+    
+    const [isPrinting, setIsPrinting] = useState(false);
+    const [printData, setPrintData] = useState<PaginatedVisitsResponse | null>(null);
 
     // Debounce search
     useEffect(() => {
@@ -133,11 +137,75 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
         }
     };
 
+    const handlePrint = async () => {
+        setIsPrinting(true);
+        try {
+            let month, year;
+            if (period === 'month' && monthYear) {
+                const [y, m] = monthYear.split('-');
+                year = y;
+                month = m;
+            }
+            
+            const params: any = {
+                page: 1,
+                per_page: 99999,
+                search: debouncedSearch,
+            };
+            
+            if (activeTab === 'scanned') params.scanned_only = true;
+            if (activeTab === 'pending') params.pending_only = true;
+            
+            if (period === 'day' && date) params.date = date;
+            if (period === 'month') {
+                params.month = month;
+                params.year = year;
+            }
+            
+            const res = await getAdminVisits(params);
+            if (res) {
+                setPrintData(res);
+                setTimeout(() => {
+                    window.print();
+                    setIsPrinting(false);
+                }, 500);
+            } else {
+                setIsPrinting(false);
+            }
+        } catch (error) {
+            console.error("Failed to fetch print data", error);
+            setIsPrinting(false);
+        }
+    };
+
     return (
-        <>
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Page Title & Print Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <Users className="w-7 h-7 text-[#085C3B]" />
+                        Data Pengunjung
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-500">
+                        Pantau data pengunjung yang telah melakukan scan tiket dan check-in.
+                    </p>
+                </div>
+                <div className="flex-shrink-0">
+                    <button 
+                        onClick={handlePrint}
+                        disabled={isPrinting}
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                    >
+                        <Printer className="w-4 h-4" />
+                        {isPrinting ? 'Menyiapkan...' : 'Cetak Laporan'}
+                    </button>
+                </div>
+            </div>
+
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 {/* Header, Search & Filters */}
-                <div className="p-6 border-b border-gray-100 space-y-4">
+                <div className="p-6 border-b border-gray-100 space-y-4 print:hidden">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <h2 className="text-lg font-bold text-gray-900">Data Pengunjung</h2>
@@ -213,7 +281,7 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                 </div>
 
                 {/* Tabs */}
-                <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex flex-wrap gap-3">
+                <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex flex-wrap gap-3 print:hidden">
                     <button
                         onClick={() => { setActiveTab('scanned'); setPage(1); }}
                         className={`group py-2.5 px-4 font-medium text-sm rounded-xl transition-all duration-200 flex items-center gap-2 ${
@@ -247,7 +315,7 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                 </div>
 
                 {/* Table Area */}
-                <div className="overflow-x-auto min-h-[400px]">
+                <div className="overflow-x-auto min-h-[400px] print:hidden">
                     {isError ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <p className="text-red-500 font-medium">Data pengunjung gagal dimuat.</p>
@@ -340,7 +408,7 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
 
                 {/* Pagination */}
                 {data && data.meta.total > 0 && (
-                    <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
+                    <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between print:hidden">
                         <div className="text-sm text-gray-500">
                             Menampilkan <span className="font-medium text-gray-900">{(data.meta.current_page - 1) * data.meta.per_page + 1}</span> hingga <span className="font-medium text-gray-900">{Math.min(data.meta.current_page * data.meta.per_page, data.meta.total)}</span> dari <span className="font-medium text-gray-900">{data.meta.total}</span> visitors
                         </div>
@@ -451,7 +519,16 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                     </div>
                 </div>
             )}
-        </>
+            
+            <ReportPrintView 
+                period={period} 
+                date={date} 
+                monthYear={monthYear} 
+                activeTab={activeTab} 
+                search={debouncedSearch} 
+                data={printData}
+            />
+        </div>
     );
 }
 

@@ -215,9 +215,14 @@ class AdminApiController extends Controller
         $query = Visit::with(['visitor', 'service', 'members']);
 
         $isScannedOnly = filter_var($request->query('scanned_only', false), FILTER_VALIDATE_BOOLEAN);
+        $isPendingOnly = filter_var($request->query('pending_only', false), FILTER_VALIDATE_BOOLEAN);
 
         if ($isScannedOnly) {
             $query->whereNotNull('checked_in_at');
+        }
+
+        if ($isPendingOnly) {
+            $query->where('status', 'pending');
         }
 
         if ($request->has('status')) {
@@ -295,6 +300,11 @@ class AdminApiController extends Controller
         $pendingMembers = \Illuminate\Support\Facades\DB::table('visit_members')
             ->joinSub((clone $pendingQuery)->select('id'), 'v', function ($join) { $join->on('visit_members.visit_id', '=', 'v.id'); })
             ->count();
+
+        $totalTickets = (clone $query)->count();
+        $totalMembers = \Illuminate\Support\Facades\DB::table('visit_members')
+            ->joinSub((clone $query)->select('id'), 'v', function ($join) { $join->on('visit_members.visit_id', '=', 'v.id'); })
+            ->count();
             
         return $resource->additional([
             'summary' => [
@@ -306,6 +316,9 @@ class AdminApiController extends Controller
                     'tickets' => $pendingTickets, 
                     'people' => $pendingTickets + $pendingMembers
                 ],
+            ],
+            'meta' => [
+                'total_people' => $totalTickets + $totalMembers
             ]
         ]);
     }

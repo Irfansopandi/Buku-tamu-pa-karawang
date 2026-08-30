@@ -38,11 +38,12 @@ export default function AdminHeader({ adminName = "Admin" }: { adminName?: strin
         if (pathname.includes('/visitors')) return "Data Pengunjung";
         if (pathname.includes('/services')) return "Layanan";
         if (pathname.includes('/officers')) return "Petugas";
+        if (pathname.includes('/settings/public-guide')) return "Panduan Publik";
         return "Admin Portal";
     };
 
     return (
-        <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 z-10 relative">
+        <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 z-10 relative print:hidden">
             <div className="flex-1 flex justify-between px-4 sm:px-6 lg:px-8 h-20 items-center">
                 
                 {/* LEFT: Hamburger & Title */}

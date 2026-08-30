@@ -16,6 +16,9 @@ Route::middleware('throttle:60,1')->group(function () {
 
 Route::get('/services', [PublicApiController::class, 'services']);
 
+// Public Settings API (No Auth Required)
+Route::get('/settings', [App\Http\Controllers\Api\SettingController::class, 'index']);
+
 // Auth Routes (Rate limited)
 Route::middleware('throttle:10,1')->group(function () {
     Route::post('/login/admin', [AuthController::class, 'loginAdmin']);
@@ -34,6 +37,9 @@ Route::middleware(['auth:officer', 'is_active'])->prefix('officer')->group(funct
 Route::middleware(['auth:admin', 'is_active'])->prefix('admin')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/dashboard', [AdminApiController::class, 'dashboardStats']);
+    
+    // Settings
+    Route::post('/settings/public-guide', [App\Http\Controllers\Api\SettingController::class, 'updatePublicGuide']);
     
     // Visitors
     Route::get('/visitors', [AdminApiController::class, 'getVisitors']);

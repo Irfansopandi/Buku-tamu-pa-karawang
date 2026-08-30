@@ -226,6 +226,22 @@ export default function AdminVisitsTable() {
                     </div>
                 </div>
 
+                {/* Summary Badges */}
+                <div className="px-6 py-3 bg-gray-50/80 border-b border-gray-100 flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-600">Total Tiket:</span>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 shadow-sm">
+                            {data?.meta?.total ?? 0}
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-600">Total Orang (Termasuk Rombongan):</span>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 shadow-sm">
+                            {data?.meta?.total_people ?? 0}
+                        </span>
+                    </div>
+                </div>
+
                 {/* Table Area */}
                 <div className="overflow-x-auto min-h-[400px]">
                     {isError ? (

@@ -13,7 +13,8 @@ import {
     ClipboardList, 
     Users, 
     Briefcase, 
-    UserCog 
+    UserCog,
+    BookOpen
 } from "lucide-react";
 import { useSidebar } from "./SidebarContext";
 
@@ -31,6 +32,12 @@ const navigation = [
             { name: "Pengunjung", href: "/admin/visitors", icon: Users },
             { name: "Layanan", href: "/admin/services", icon: Briefcase },
             { name: "Petugas", href: "/admin/officers", icon: UserCog },
+        ]
+    },
+    {
+        section: "PENGATURAN",
+        items: [
+            { name: "Panduan Publik", href: "/admin/settings/public-guide", icon: BookOpen },
         ]
     }
 ];
@@ -69,7 +76,7 @@ export default function AdminSidebar() {
 
     return (
         <>
-            <div className={`hidden md:flex md:flex-shrink-0 shadow-lg relative z-20 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+            <div className={`hidden md:flex md:flex-shrink-0 shadow-lg relative z-20 transition-all duration-300 print:hidden ${isCollapsed ? 'w-20' : 'w-64'}`}>
                 <div className="flex flex-col w-full">
                     <div className="flex flex-col h-0 flex-1 bg-[#11522A] border-r border-[#085C3B]">
                         <div className="flex-1 flex flex-col pb-4">

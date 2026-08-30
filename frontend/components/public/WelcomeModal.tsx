@@ -1,11 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getSettingsAction } from "@/app/admin/settings/actions";
+import { Loader2 } from "lucide-react";
 
 export default function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
+  const [settings, setSettings] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    async function loadSettings() {
+      const data = await getSettingsAction();
+      setSettings(data || {});
+      setIsLoading(false);
+    }
+    loadSettings();
+  }, []);
+
+  useEffect(() => {
+    if (isLoading) return;
+
     // Check if the modal has been shown in this session
     const hasSeenModal = sessionStorage.getItem("hasSeenWelcomeModal");
     
@@ -19,19 +34,48 @@ export default function WelcomeModal() {
       
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isLoading]);
+
+  // Helper to get embed URL for YouTube
+  const getYouTubeEmbedUrl = (url: string) => {
+    if (!url) return '';
+    try {
+        const urlObj = new URL(url);
+        let videoId = '';
+        if (urlObj.hostname.includes('youtube.com')) {
+            videoId = urlObj.searchParams.get('v') || '';
+        } else if (urlObj.hostname.includes('youtu.be')) {
+            videoId = urlObj.pathname.slice(1);
+        }
+        return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1` : '';
+    } catch (e) {
+        return '';
+    }
+  };
+
+  const getFullUrl = (path: string) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+    return apiUrl.replace('/api', '') + path;
+  };
 
   return (
     <>
       {/* Floating Action Button */}
-      <button 
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[90] w-12 h-12 md:w-14 md:h-14 bg-primary-dark text-white rounded-full shadow-2xl shadow-primary-dark/40 flex items-center justify-center hover:bg-primary transition-all hover:scale-110 group focus:outline-none focus:ring-4 focus:ring-primary/30"
-        aria-label="Lihat Panduan"
-        title="Lihat Panduan Penggunaan"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:h-7 md:w-7 group-hover:animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-      </button>
+      <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[90] flex flex-col items-center gap-3">
+        {/* Button Wrapper */}
+        <div className="relative">
+          <button 
+            onClick={() => setIsOpen(true)}
+            className="relative w-12 h-12 md:w-14 md:h-14 bg-primary-dark text-white rounded-full shadow-xl flex items-center justify-center hover:bg-primary transition-all hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primary/30 group"
+            aria-label="Lihat Panduan"
+            title="Lihat Panduan Penggunaan"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:h-7 md:w-7 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+          </button>
+        </div>
+      </div>
 
       {/* Modal */}
       {isOpen && (
@@ -60,33 +104,51 @@ export default function WelcomeModal() {
                     <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Cara Menggunakan<br/>Buku Tamu Digital</h3>
                  </div>
                  
-                 {/* Placeholder for Tutorial Image */}
                  <div className="w-full flex-grow relative bg-white border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center overflow-hidden">
-                    <div className="text-center p-4">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-gray-400 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                       <p className="text-gray-500 text-sm font-medium">Gambar Tutorial / Infografis</p>
-                       <p className="text-gray-400 text-xs mt-1">Silakan ganti dengan gambar panduan Anda</p>
-                    </div>
+                    {isLoading ? (
+                        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                    ) : settings.welcome_image ? (
+                        <img src={getFullUrl(settings.welcome_image)} alt="Panduan" className="w-full h-full object-contain" />
+                    ) : (
+                        <div className="text-center p-4">
+                           <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-gray-400 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                           <p className="text-gray-500 text-sm font-medium">Gambar Tutorial / Infografis</p>
+                           <p className="text-gray-400 text-xs mt-1">Belum ada gambar panduan.</p>
+                        </div>
+                    )}
                  </div>
               </div>
 
               {/* Right: Video Tutorial */}
               <div className="w-full md:w-1/2 h-1/2 md:h-full bg-black relative flex flex-col justify-center items-center">
-                 
-                 {/* Placeholder for Video / YouTube Iframe */}
-                 <div className="w-full h-full flex items-center justify-center relative">
-                    {/* Placeholder UI */}
-                    <div className="text-center p-6 text-white z-10">
-                       <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-red-700 transition-transform hover:scale-105">
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>
-                       </div>
-                       <p className="font-bold text-lg mb-1">Video Panduan</p>
-                       <p className="text-gray-300 text-sm">Embed video YouTube atau pasang video MP4 di sini</p>
-                    </div>
-                    {/* Background image for placeholder */}
-                    <div className="absolute inset-0 bg-gray-800 opacity-50"></div>
-                 </div>
-
+                 {isLoading ? (
+                     <Loader2 className="w-8 h-8 animate-spin text-white" />
+                 ) : settings.welcome_video_type === 'youtube' && settings.welcome_video_url ? (
+                     <iframe 
+                        src={getYouTubeEmbedUrl(settings.welcome_video_url)} 
+                        title="Video Panduan" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowFullScreen
+                        className="w-full h-full"
+                     ></iframe>
+                 ) : settings.welcome_video_type === 'upload' && settings.welcome_video_url ? (
+                     <video 
+                        src={getFullUrl(settings.welcome_video_url)} 
+                        controls 
+                        className="w-full h-full object-contain"
+                     ></video>
+                 ) : (
+                     <div className="w-full h-full flex items-center justify-center relative">
+                        <div className="text-center p-6 text-white z-10">
+                           <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4 opacity-50">
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>
+                           </div>
+                           <p className="font-bold text-lg mb-1">Video Panduan</p>
+                           <p className="text-gray-300 text-sm">Belum ada video panduan.</p>
+                        </div>
+                        <div className="absolute inset-0 bg-gray-800 opacity-50"></div>
+                     </div>
+                 )}
               </div>
 
             </div>
