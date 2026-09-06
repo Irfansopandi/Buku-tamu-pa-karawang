@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
         const token = request.cookies.get('admin_token')?.value;
         if (!token) {
-            return NextResponse.redirect(new URL('/admin/login', request.url));
+            return NextResponse.redirect(new URL('/login', request.url));
         }
     }
 
@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith('/officer') && !pathname.startsWith('/officer/login')) {
         const token = request.cookies.get('officer_token')?.value;
         if (!token) {
-            return NextResponse.redirect(new URL('/officer/login', request.url));
+            return NextResponse.redirect(new URL('/login', request.url));
         }
     }
 

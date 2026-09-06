@@ -3,9 +3,12 @@
 import { useState, useEffect } from 'react';
 import { getAdminVisits } from './actions';
 import { PaginatedVisitsResponse } from '../../../lib/types';
-import { Search, Calendar, ChevronLeft, ChevronRight, Activity, Clock, Eye, X, ChevronDown, Plus } from 'lucide-react';
+import { Search, Calendar, ChevronLeft, ChevronRight, Activity, Clock, Eye, X, ChevronDown, Plus, QrCode, Users, ClipboardList, Printer } from 'lucide-react';
 import { VisitScanData } from '../../../lib/types';
 import AdminAddVisitModal from './AdminAddVisitModal';
+import TicketCard from '@/components/public/TicketCard';
+import QRCode from 'qrcode';
+import { fetchApi } from '@/lib/api';
 
 export default function AdminVisitsTable() {
     const [data, setData] = useState<PaginatedVisitsResponse | null>(null);
@@ -15,6 +18,11 @@ export default function AdminVisitsTable() {
     const [statusFilter, setStatusFilter] = useState('all');
     const [selectedVisit, setSelectedVisit] = useState<VisitScanData | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    
+    // Ticket Print States
+    const [printingTicketVisit, setPrintingTicketVisit] = useState<VisitScanData | null>(null);
+    const [isGeneratingTicket, setIsGeneratingTicket] = useState(false);
+    const [ticketQrDataUrl, setTicketQrDataUrl] = useState<string>("");
     
     // Default to today in local timezone
     const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }).slice(0, 10);
@@ -127,20 +135,69 @@ export default function AdminVisitsTable() {
         }
     };
 
+    const handleCetakTiket = async () => {
+        if (!selectedVisit) return;
+        setIsGeneratingTicket(true);
+        try {
+            const res = await fetchApi(`/api/visits/search?query=${selectedVisit.visit_number}`, { method: 'GET' });
+            const dataArray = Array.isArray(res.data) ? res.data : [res.data];
+            
+            if (dataArray.length === 0) {
+                alert("Tiket tidak ditemukan.");
+                return;
+            }
+
+            const qrToken = dataArray[0].qr_token;
+            const generatedQrUrl = await QRCode.toDataURL(qrToken, {
+                width: 300,
+                margin: 1,
+                errorCorrectionLevel: 'M',
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
+                }
+            });
+            
+            setTicketQrDataUrl(generatedQrUrl);
+            setPrintingTicketVisit(selectedVisit);
+        } catch (error) {
+            console.error("Failed to generate ticket", error);
+            alert("Gagal memuat tiket. Silakan coba lagi.");
+        } finally {
+            setIsGeneratingTicket(false);
+        }
+    };
+
     return (
-        <>
+        <div className="space-y-6 max-w-7xl mx-auto pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Page Title & Add Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <ClipboardList className="w-7 h-7 text-[#085C3B]" />
+                        Manajemen Kunjungan
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-500">
+                        Kelola dan pantau seluruh data kunjungan yang terdaftar pada sistem.
+                    </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#085C3B] hover:bg-[#06422a] text-white text-sm font-medium rounded-xl transition-colors whitespace-nowrap shadow-sm shadow-[#085C3B]/20"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Tambah Data
+                    </button>
+                </div>
+            </div>
+
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 {/* Header, Search & Filters */}
                 <div className="p-6 border-b border-gray-100 space-y-4">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <button 
-                                onClick={() => setIsAddModalOpen(true)}
-                                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#085C3B] hover:bg-[#06422a] text-white text-sm font-medium rounded-xl transition-colors whitespace-nowrap shadow-sm shadow-[#085C3B]/20"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Tambah Data
-                            </button>
+                            <h2 className="text-lg font-bold text-gray-900">Data Kunjungan</h2>
                             {isUpdating ? (
                                 <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold">
                                     <span className="flex h-2 w-2 relative">
@@ -227,18 +284,14 @@ export default function AdminVisitsTable() {
                 </div>
 
                 {/* Summary Badges */}
-                <div className="px-6 py-3 bg-gray-50/80 border-b border-gray-100 flex items-center gap-6">
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-600">Total Tiket:</span>
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 shadow-sm">
-                            {data?.meta?.total ?? 0}
-                        </span>
+                <div className="px-6 py-4 bg-gray-50/80 border-b border-gray-100 flex items-center gap-4">
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 shadow-sm transition-all hover:shadow-md">
+                        <QrCode className="w-4 h-4 text-yellow-600" />
+                        <span className="text-sm font-bold">{data?.meta?.total ?? 0} Tiket</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-600">Total Orang (Termasuk Rombongan):</span>
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 shadow-sm">
-                            {data?.meta?.total_people ?? 0}
-                        </span>
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-green-200 bg-green-50 text-green-700 shadow-sm transition-all hover:shadow-md">
+                        <Users className="w-4 h-4 text-green-600" />
+                        <span className="text-sm font-bold">{data?.meta?.total_people ?? 0} Pengunjung</span>
                     </div>
                 </div>
 
@@ -432,11 +485,46 @@ export default function AdminVisitsTable() {
                                 </div>
                             )}
                         </div>
-                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+                            <button 
+                                onClick={handleCetakTiket}
+                                disabled={isGeneratingTicket}
+                                className="px-4 py-2 bg-white border border-[#085C3B] text-[#085C3B] hover:bg-green-50 text-sm font-medium rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
+                            >
+                                {isGeneratingTicket ? (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#085C3B]"></div>
+                                ) : (
+                                    <Printer className="w-4 h-4" />
+                                )}
+                                Cetak Tiket
+                            </button>
                             <button onClick={() => setSelectedVisit(null)} className="px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 transition-colors">
                                 Tutup
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Ticket Print Modal */}
+            {printingTicketVisit && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+                    <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-lg my-auto animate-in fade-in zoom-in-95 duration-200">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-bold text-gray-900">Cetak Tiket Kunjungan</h3>
+                            <button onClick={() => setPrintingTicketVisit(null)} className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <TicketCard
+                            visitorCode={printingTicketVisit.visitor.visitor_code}
+                            visitNumber={printingTicketVisit.visit_number}
+                            fullName={printingTicketVisit.visitor.name}
+                            visitDate={printingTicketVisit.visit_date || ''}
+                            qrDataUrl={ticketQrDataUrl}
+                            onClose={() => setPrintingTicketVisit(null)}
+                            closeText="TUTUP"
+                        />
                     </div>
                 </div>
             )}
@@ -446,6 +534,6 @@ export default function AdminVisitsTable() {
                 onClose={() => setIsAddModalOpen(false)} 
                 onSuccess={() => { setIsAddModalOpen(false); fetchVisits(); }} 
             />
-        </>
+        </div>
     );
 }

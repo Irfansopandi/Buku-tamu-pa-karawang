@@ -79,7 +79,7 @@ export async function logoutAdminAction() {
     const cookieStore = await cookies();
     cookieStore.delete("admin_token");
     
-    redirect("/admin/login");
+    redirect("/login");
 }
 
 export async function logoutOfficerAction() {
@@ -92,5 +92,5 @@ export async function logoutOfficerAction() {
     const cookieStore = await cookies();
     cookieStore.delete("officer_token");
     
-    redirect("/officer/login");
+    redirect("/login");
 }

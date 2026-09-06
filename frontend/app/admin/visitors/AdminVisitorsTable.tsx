@@ -4,9 +4,10 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { getAdminVisits } from '../visits/actions';
 import { PaginatedVisitsResponse } from '@/lib/types';
-import { Search, Calendar, ChevronLeft, ChevronRight, Activity, Clock, Eye, X, ChevronDown, Printer, Users } from 'lucide-react';
-import { VisitScanData } from '@/lib/types';
+import { Search, Calendar, ChevronLeft, ChevronRight, Activity, Clock, Eye, X, ChevronDown, Printer, Users, FolderOpen } from 'lucide-react';
+import { VisitScanData, Service } from '@/lib/types';
 import ReportPrintView from './ReportPrintView';
+import { getAdminServices } from '../services/actions';
 
 function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 'scanned' | 'pending' }) {
     const searchParams = useSearchParams();
@@ -19,7 +20,10 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
     const [activeTab, setActiveTab] = useState<'scanned' | 'pending'>(
         (tabParam === 'scanned' || tabParam === 'pending') ? tabParam : initialTab
     );
-    const [selectedVisit, setSelectedVisit] = useState<VisitScanData | null>(null);
+    
+    // Services
+    const [services, setServices] = useState<Service[]>([]);
+    const [serviceFilter, setServiceFilter] = useState<string>('all');
     
     // Default to today in local timezone
     const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }).slice(0, 10);
@@ -42,6 +46,13 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
         }, 500);
         return () => clearTimeout(timer);
     }, [search]);
+
+    // Fetch services on mount
+    useEffect(() => {
+        getAdminServices().then((res) => {
+            setServices(res);
+        });
+    }, []);
 
     // Sync tab with URL
     useEffect(() => {
@@ -66,6 +77,10 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                 per_page: 10,
                 search: debouncedSearch,
             };
+            
+            if (serviceFilter !== 'all') {
+                params.service_id = serviceFilter;
+            }
             
             if (activeTab === 'scanned') {
                 params.scanned_only = true;
@@ -102,7 +117,7 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
     // Effect for dependencies changes
     useEffect(() => {
         fetchVisitors();
-    }, [debouncedSearch, period, date, monthYear, page, activeTab]);
+    }, [debouncedSearch, period, date, monthYear, page, activeTab, serviceFilter]);
 
     // Polling effect
     useEffect(() => {
@@ -110,7 +125,7 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
             fetchVisitors();
         }, 10000);
         return () => clearInterval(interval);
-    }, [debouncedSearch, period, date, monthYear, page, activeTab]);
+    }, [debouncedSearch, period, date, monthYear, page, activeTab, serviceFilter]);
 
     const handlePeriodChange = (newPeriod: 'all' | 'day' | 'month') => {
         setPeriod(newPeriod);
@@ -152,6 +167,10 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                 per_page: 99999,
                 search: debouncedSearch,
             };
+            
+            if (serviceFilter !== 'all') {
+                params.service_id = serviceFilter;
+            }
             
             if (activeTab === 'scanned') params.scanned_only = true;
             if (activeTab === 'pending') params.pending_only = true;
@@ -243,6 +262,22 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                             </div>
                             
                             <div className="flex items-center gap-2 w-full sm:w-auto">
+                                <div className="relative w-full sm:w-auto">
+                                    <select 
+                                        value={serviceFilter}
+                                        onChange={(e) => { setServiceFilter(e.target.value); setPage(1); }}
+                                        className="appearance-none block w-full sm:w-auto py-2 pl-3 pr-9 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none cursor-pointer hover:border-green-400 transition-colors bg-white"
+                                    >
+                                        <option value="all">Semua Layanan</option>
+                                        {services.map(s => (
+                                            <option key={s.id} value={s.id.toString()}>{s.name}</option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-gray-400">
+                                        <ChevronDown className="w-4 h-4" />
+                                    </div>
+                                </div>
+                                
                                 <div className="relative w-full sm:w-auto">
                                     <select 
                                         value={period}
@@ -341,7 +376,6 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                                     <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                         {activeTab === 'scanned' ? 'Waktu Scan' : 'Waktu Reservasi'}
                                     </th>
-                                    <th scope="col" className="px-3 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100 relative">
@@ -387,17 +421,6 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                                                     : (visit.visit_date ? new Date(visit.visit_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-')
                                                 }
                                             </td>
-                                            <td className="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                                <div className="flex items-center justify-center gap-1.5">
-                                                    <button 
-                                                        onClick={() => setSelectedVisit(visit)}
-                                                        className="p-1.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
-                                                        title="Lihat Detail"
-                                                    >
-                                                        <Eye className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </td>
                                         </tr>
                                     );
                                 })}
@@ -434,91 +457,6 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                     </div>
                 )}
             </div>
-
-            {/* Modal Detail Kunjungan */}
-            {selectedVisit && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl w-full max-w-xl overflow-hidden shadow-xl animate-in fade-in zoom-in-95 duration-200">
-                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                            <h3 className="font-bold text-gray-900">Detail Pengunjung</h3>
-                            <button onClick={() => setSelectedVisit(null)} className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                        <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <p className="text-gray-500 mb-1">No. Antrian / Tiket</p>
-                                    <p className="font-bold text-gray-900">{selectedVisit.visit_number}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-500 mb-1">Status</p>
-                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(selectedVisit.status)}`}>
-                                        {getStatusLabel(selectedVisit.status)}
-                                    </span>
-                                </div>
-                                <div>
-                                    <p className="text-gray-500 mb-1">Pengunjung</p>
-                                    <p className="font-medium text-gray-900">{selectedVisit.visitor.name}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-500 mb-1">NIK</p>
-                                    <p className="font-medium text-gray-900">{selectedVisit.visitor.nik || '-'}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-500 mb-1">Email</p>
-                                    <p className="font-medium text-gray-900">{selectedVisit.visitor.email || '-'}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-500 mb-1">No. HP</p>
-                                    <p className="font-medium text-gray-900">{selectedVisit.visitor.phone || '-'}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-500 mb-1">Layanan</p>
-                                    <p className="font-medium text-gray-900">{selectedVisit.service?.name || '-'}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-500 mb-1">Total Rombongan</p>
-                                    <p className="font-medium text-gray-900">{selectedVisit.group_size || (1 + (selectedVisit.members_count || 0))} Orang</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-500 mb-1">Waktu Scan</p>
-                                    <p className="font-medium text-[#085C3B] flex items-center gap-1.5">
-                                        <Clock className="w-3.5 h-3.5" />
-                                        {selectedVisit.checked_in_at ? new Date(selectedVisit.checked_in_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}
-                                    </p>
-                                </div>
-                                {selectedVisit.checked_in_at && (
-                                    <div className="col-span-1">
-                                        <p className="text-gray-500 mb-1">Tanggal Scan</p>
-                                        <p className="font-medium text-gray-900">{new Date(selectedVisit.checked_in_at).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Render Members List if exist */}
-                            {selectedVisit.members && selectedVisit.members.length > 0 && (
-                                <div className="mt-4 pt-4 border-t border-gray-100">
-                                    <p className="text-gray-500 mb-2 text-sm">Daftar Anggota Rombongan</p>
-                                    <ul className="space-y-2">
-                                        {selectedVisit.members.map((member, i) => (
-                                            <li key={i} className="flex items-center gap-2 text-sm bg-gray-50 px-3 py-2 rounded-lg">
-                                                <span className="font-bold text-gray-500 w-5 text-right">{i + 1}.</span>
-                                                <span className="font-medium text-gray-900">{member.name}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-                        </div>
-                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
-                            <button onClick={() => setSelectedVisit(null)} className="px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 transition-colors">
-                                Tutup
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
             
             <ReportPrintView 
                 period={period} 
@@ -527,6 +465,7 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                 activeTab={activeTab} 
                 search={debouncedSearch} 
                 data={printData}
+                serviceName={serviceFilter !== 'all' ? services.find(s => s.id.toString() === serviceFilter)?.name : undefined}
             />
         </div>
     );

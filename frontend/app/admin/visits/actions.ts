@@ -13,6 +13,7 @@ export interface AdminVisitsParams {
     status?: string;
     scanned_only?: boolean;
     pending_only?: boolean;
+    service_id?: string;
 }
 
 export async function getAdminVisits(params: AdminVisitsParams): Promise<PaginatedVisitsResponse | null> {
@@ -30,6 +31,7 @@ export async function getAdminVisits(params: AdminVisitsParams): Promise<Paginat
         }
         if (params.scanned_only) queryParams.append('scanned_only', 'true');
         if (params.pending_only) queryParams.append('pending_only', 'true');
+        if (params.service_id && params.service_id !== 'all') queryParams.append('service_id', params.service_id);
 
         const response = await fetchApiServer(`/api/admin/visits?${queryParams.toString()}`, "admin", { cache: "no-store" });
         return response || null;

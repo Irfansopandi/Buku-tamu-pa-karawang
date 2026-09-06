@@ -41,6 +41,11 @@ Route::middleware(['auth:admin', 'is_active'])->prefix('admin')->group(function 
     // Settings
     Route::post('/settings/public-guide', [App\Http\Controllers\Api\SettingController::class, 'updatePublicGuide']);
     
+    // Profile
+    Route::get('/profile', [AdminApiController::class, 'getProfile']);
+    Route::put('/profile', [AdminApiController::class, 'updateProfile']);
+    Route::put('/profile/password', [AdminApiController::class, 'updatePassword']);
+    
     // Visitors
     Route::get('/visitors', [AdminApiController::class, 'getVisitors']);
     

@@ -80,10 +80,9 @@ export default function OfficerHeader({ officerName = "Petugas" }: { officerName
                             </div>
                         )}
 
-                        {/* Page Name */}
                         <div className="hidden sm:flex flex-col text-right mr-4 lg:mr-6 pr-4 lg:pr-6 border-r border-gray-200">
-                            <span className="text-xs text-gray-800 font-bold uppercase tracking-wider">HALAMAN PETUGAS</span>
-                            <span className="text-sm font-bold text-[#D29C29]">{officerName}</span>
+                            <span className="text-sm font-bold text-gray-900">{officerName}</span>
+                            <span className="text-xs text-[#D29C29] font-medium tracking-wide">Petugas Scanner</span>
                         </div>
                         
                         <button
@@ -103,7 +102,7 @@ export default function OfficerHeader({ officerName = "Petugas" }: { officerName
             
             {/* Mobile indicator for page name and time */}
             <div className="sm:hidden bg-[#FAF7F2] w-full py-2 px-4 flex flex-col items-center border-b border-gray-200 gap-1">
-                <span className="text-[11px] font-bold text-[#D29C29] tracking-wide uppercase">HALAMAN PETUGAS - {officerName}</span>
+                <span className="text-[11px] font-bold text-gray-900 tracking-wide">{officerName} - <span className="text-[#D29C29]">Petugas Scanner</span></span>
                 {currentTime && (
                     <span className="text-[10px] text-gray-500 font-medium">{datePart} • {timePart} WIB</span>
                 )}

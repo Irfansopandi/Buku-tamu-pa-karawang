@@ -257,6 +257,10 @@ class AdminApiController extends Controller
             });
         }
 
+        if ($request->has('service_id') && $request->service_id !== '') {
+            $query->where('service_id', $request->service_id);
+        }
+
         $perPage = $request->input('per_page', 10);
 
         if ($isScannedOnly) {
@@ -289,6 +293,11 @@ class AdminApiController extends Controller
             };
             $scannedQuery->where($searchClosure);
             $pendingQuery->where($searchClosure);
+        }
+
+        if ($request->has('service_id') && $request->service_id !== '') {
+            $scannedQuery->where('service_id', $request->service_id);
+            $pendingQuery->where('service_id', $request->service_id);
         }
         
         $scannedTickets = (clone $scannedQuery)->count();
@@ -391,5 +400,44 @@ class AdminApiController extends Controller
     public function deleteOfficer(Officer $officer) {
         $officer->delete();
         return response()->json(['message' => 'Deleted']);
+    }
+
+    // --- Profile Management ---
+    public function getProfile(Request $request)
+    {
+        return response()->json($request->user());
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+        ]);
+
+        $user->update($validated);
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user' => $user
+        ]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $user = $request->user();
+        
+        $request->validate([
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        return response()->json([
+            'message' => 'Password updated successfully'
+        ]);
     }
 }

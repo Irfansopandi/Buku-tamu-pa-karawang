@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { User, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "./SidebarContext";
+import Link from "next/link";
 
 export default function AdminHeader({ adminName = "Admin" }: { adminName?: string }) {
     const [currentTime, setCurrentTime] = useState<string>("");
@@ -39,6 +40,7 @@ export default function AdminHeader({ adminName = "Admin" }: { adminName?: strin
         if (pathname.includes('/services')) return "Layanan";
         if (pathname.includes('/officers')) return "Petugas";
         if (pathname.includes('/settings/public-guide')) return "Panduan Publik";
+        if (pathname.includes('/settings/profile')) return "Profil Admin";
         return "Admin Portal";
     };
 
@@ -83,7 +85,7 @@ export default function AdminHeader({ adminName = "Admin" }: { adminName?: strin
                     </div>
 
                     {/* RIGHT 2: User Profile */}
-                    <div className="flex items-center gap-3 border-l border-gray-200 pl-4 sm:pl-5 h-full">
+                    <Link href="/admin/settings/profile" className="flex items-center gap-3 border-l border-gray-200 pl-4 sm:pl-5 h-full cursor-pointer hover:bg-gray-50 transition-colors rounded-r-lg px-2">
                         <div className="flex flex-col text-right justify-center">
                             <span className="text-sm font-bold text-gray-900">{adminName}</span>
                             <span className="text-[11px] text-[#D29C29] font-medium">Administrator</span>
@@ -91,7 +93,7 @@ export default function AdminHeader({ adminName = "Admin" }: { adminName?: strin
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#11522A] to-[#085C3B] flex items-center justify-center text-white shadow-sm ring-2 ring-white border border-[#085C3B]/20">
                             <User className="w-5 h-5" />
                         </div>
-                    </div>
+                    </Link>
                 </div>
             </div>
         </header>

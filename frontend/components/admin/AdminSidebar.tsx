@@ -14,7 +14,8 @@ import {
     Users, 
     Briefcase, 
     UserCog,
-    BookOpen
+    BookOpen,
+    User
 } from "lucide-react";
 import { useSidebar } from "./SidebarContext";
 
@@ -30,13 +31,14 @@ const navigation = [
         items: [
             { name: "Kunjungan", href: "/admin/visits", icon: ClipboardList },
             { name: "Pengunjung", href: "/admin/visitors", icon: Users },
-            { name: "Layanan", href: "/admin/services", icon: Briefcase },
-            { name: "Petugas", href: "/admin/officers", icon: UserCog },
         ]
     },
     {
         section: "PENGATURAN",
         items: [
+            { name: "Profil", href: "/admin/settings/profile", icon: User },
+            { name: "Layanan", href: "/admin/services", icon: Briefcase },
+            { name: "Petugas", href: "/admin/officers", icon: UserCog },
             { name: "Panduan Publik", href: "/admin/settings/public-guide", icon: BookOpen },
         ]
     }

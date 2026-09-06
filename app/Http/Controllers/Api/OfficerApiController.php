@@ -16,7 +16,10 @@ class OfficerApiController extends Controller
 
         $tokenHash = hash('sha256', $request->qr_token);
         
-        $visit = Visit::with(['visitor', 'service', 'members'])->where('qr_token_hash', $tokenHash)->first();
+        $visit = Visit::with(['visitor', 'service', 'members'])
+            ->where('qr_token_hash', $tokenHash)
+            ->orWhere('visit_number', $request->qr_token)
+            ->first();
 
         if (!$visit) {
             return response()->json(['message' => 'Invalid QR Code.'], 404);

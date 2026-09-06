@@ -251,7 +251,7 @@ export default function ScannerClient() {
                                     type="text" 
                                     value={manualInput}
                                     onChange={(e) => setManualInput(e.target.value)}
-                                    placeholder="Contoh: v-a1b2c3d4"
+                                    placeholder="Contoh: PAK-xxxxxx-xxx"
                                     className="flex-grow px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#085C3B] focus:border-transparent"
                                 />
                                 <button 
