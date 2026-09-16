@@ -21,7 +21,10 @@ export default function PublicGuideSettingsPage() {
     useEffect(() => {
         async function fetchSettings() {
             const data = await getSettingsAction();
-            if (data.welcome_image) setImagePreview(process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') + data.welcome_image);
+            if (data.welcome_image) {
+                const baseUrl = (process.env.NEXT_PUBLIC_API_URL || '').replace('/api', '');
+                setImagePreview(baseUrl + (data.welcome_image.startsWith('/') ? data.welcome_image : '/' + data.welcome_image));
+            }
             if (data.welcome_video_type) setVideoType(data.welcome_video_type as 'upload' | 'youtube');
             if (data.welcome_video_url) {
                 if (data.welcome_video_type === 'youtube') {

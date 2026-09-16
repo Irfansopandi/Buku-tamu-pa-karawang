@@ -57,7 +57,8 @@ export default function WelcomeModal() {
     if (!path) return '';
     if (path.startsWith('http')) return path;
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
-    return apiUrl.replace('/api', '') + path;
+    const baseUrl = apiUrl.replace('/api', '');
+    return baseUrl + (path.startsWith('/') ? path : '/' + path);
   };
 
   return (
@@ -95,20 +96,20 @@ export default function WelcomeModal() {
             </div>
 
             {/* Content */}
-            <div className="flex flex-col md:flex-row w-full h-[80vh] md:h-[500px]">
+            <div className="flex flex-col md:flex-row w-full h-[80vh] md:h-[500px] overflow-y-auto md:overflow-hidden">
               
               {/* Left: Image Tutorial */}
-              <div className="w-full md:w-1/2 h-1/2 md:h-full bg-[#FEF9F0] p-6 sm:p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-200">
-                 <div className="mb-6">
+              <div className="w-full md:w-1/2 h-auto md:h-full bg-[#FEF9F0] p-6 sm:p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-200 flex-shrink-0">
+                 <div className="mb-6 shrink-0">
                     <span className="inline-block px-3 py-1 bg-[#e8f1ea] text-primary-dark font-bold text-xs rounded-full mb-2">PANDUAN</span>
                     <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Cara Menggunakan<br/>Buku Tamu Digital</h3>
                  </div>
                  
-                 <div className="w-full flex-grow relative bg-white border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center overflow-hidden">
+                 <div className="w-full flex-grow relative bg-white border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center overflow-hidden p-2 md:p-0">
                     {isLoading ? (
                         <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                     ) : settings.welcome_image ? (
-                        <img src={getFullUrl(settings.welcome_image)} alt="Panduan" className="w-full h-full object-contain" />
+                        <img src={getFullUrl(settings.welcome_image)} alt="Panduan" className="w-full h-auto md:h-full md:absolute md:inset-0 md:object-contain rounded-lg md:rounded-none" />
                     ) : (
                         <div className="text-center p-4">
                            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-gray-400 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
@@ -120,7 +121,7 @@ export default function WelcomeModal() {
               </div>
 
               {/* Right: Video Tutorial */}
-              <div className="w-full md:w-1/2 h-1/2 md:h-full bg-black relative flex flex-col justify-center items-center">
+              <div className="w-full md:w-1/2 min-h-[350px] md:min-h-0 md:h-full bg-black relative flex flex-col justify-center items-center flex-shrink-0">
                  {isLoading ? (
                      <Loader2 className="w-8 h-8 animate-spin text-white" />
                  ) : settings.welcome_video_type === 'youtube' && settings.welcome_video_url ? (
@@ -129,13 +130,13 @@ export default function WelcomeModal() {
                         title="Video Panduan" 
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                         allowFullScreen
-                        className="w-full h-full"
+                        className="w-full h-full absolute inset-0"
                      ></iframe>
                  ) : settings.welcome_video_type === 'upload' && settings.welcome_video_url ? (
                      <video 
                         src={getFullUrl(settings.welcome_video_url)} 
                         controls 
-                        className="w-full h-full object-contain"
+                        className="w-full h-full absolute inset-0 object-contain"
                      ></video>
                  ) : (
                      <div className="w-full h-full flex items-center justify-center relative">

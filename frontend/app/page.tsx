@@ -186,7 +186,7 @@ export default function LandingPage() {
               </div>
               <div className="flex-grow overflow-hidden flex items-center h-full">
                  <div className="animate-marquee whitespace-nowrap text-primary-dark text-sm sm:text-base font-semibold tracking-wide">
-                    Waspada Penipuan! Pengadilan Agama Karawang tidak memungut biaya selain yang diatur dalam PNBP. Pastikan Anda mendapatkan informasi resmi hanya melalui saluran komunikasi kami. Pendaftaran layanan dibuka pukul 08:00 WIB.
+                    Waspada Penipuan! Pengadilan Agama Karawang tidak memungut biaya selain yang diatur dalam PNBP. Pastikan Anda mendapatkan informasi resmi hanya melalui saluran komunikasi kami. Pendaftaran layanan dibuka pukul 08:00 WIB - 16:00 WIB.
                  </div>
               </div>
            </div>

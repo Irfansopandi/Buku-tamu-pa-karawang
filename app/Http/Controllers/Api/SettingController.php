@@ -31,8 +31,8 @@ class SettingController extends Controller
                 'welcome_image.required' => 'Pilih gambar terlebih dahulu.',
             ]);
 
-            $path = $request->file('welcome_image')->store('public/settings');
-            $url = Storage::url($path);
+            $path = $request->file('welcome_image')->store('settings', 'public');
+            $url = '/storage/' . $path;
             Setting::updateOrCreate(['key' => 'welcome_image'], ['value' => $url]);
 
             return response()->json([
@@ -56,8 +56,8 @@ class SettingController extends Controller
 
             if ($request->welcome_video_type === 'upload') {
                 if ($request->hasFile('welcome_video_file')) {
-                    $path = $request->file('welcome_video_file')->store('public/settings');
-                    $url = Storage::url($path);
+                    $path = $request->file('welcome_video_file')->store('settings', 'public');
+                    $url = '/storage/' . $path;
                     Setting::updateOrCreate(['key' => 'welcome_video_url'], ['value' => $url]);
                 }
             } else {
