@@ -20,7 +20,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="id"
       className={`${poppins.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        {children}
+        <div id="root-portal"></div>
+      </body>
     </html>
   );
 }

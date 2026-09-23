@@ -9,6 +9,7 @@ import WelcomeModal from "@/components/public/WelcomeModal";
 import TicketCard from "@/components/public/TicketCard";
 import QRCode from 'qrcode';
 import { fetchApi } from "@/lib/api";
+import { getSettingsAction } from "@/app/admin/settings/actions";
 
 export default function LandingPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,7 +21,19 @@ export default function LandingPage() {
   const [isTicketDropdownOpen, setIsTicketDropdownOpen] = useState(false);
   const ticketDropdownRef = useRef<HTMLDivElement>(null);
 
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
   useEffect(() => {
+    async function initSettings() {
+      try {
+        const data = await getSettingsAction();
+        setSettings(data || {});
+      } catch (error) {
+        console.error("Error loading settings:", error);
+      }
+    }
+    initSettings();
+
     function handleClickOutside(event: MouseEvent) {
       if (ticketDropdownRef.current && !ticketDropdownRef.current.contains(event.target as Node)) {
         setIsTicketDropdownOpen(false);
@@ -95,6 +108,21 @@ export default function LandingPage() {
       } catch (err) {
           console.error("Failed to generate QR on selection change", err);
       }
+  };
+
+  // Helper to get embed URL for YouTube
+  const getYouTubeEmbedUrl = (url: string) => {
+    if (!url) return '';
+    try {
+        // Ekstrak ID video (11 karakter) dari berbagai variasi URL YouTube (v=, /embed/, /live/, /shorts/, youtu.be/)
+        const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+        if (match && match[1]) {
+            return `https://www.youtube.com/embed/${match[1]}`;
+        }
+        return '';
+    } catch (e) {
+        return '';
+    }
   };
 
   return (
@@ -314,83 +342,38 @@ export default function LandingPage() {
         </div>
 
 
-        {/* CARA BERKUNJUNG SECTION */}
+        {/* CARA BERKUNJUNG SECTION (VIDEO YOUTUBE) */}
         <section className="py-12 bg-transparent">
-           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center mb-16 flex flex-col items-center">
+           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-10 flex flex-col items-center">
                  <h2 className="text-2xl font-bold text-primary-dark">CARA BERKUNJUNG</h2>
                  <div className="w-12 h-1 bg-accent mt-3 rounded-full"></div>
               </div>
-              
-              <div className="flex flex-wrap md:flex-nowrap justify-between items-start relative gap-y-8 md:gap-0">
-                 {/* Connecting Line (Desktop) */}
-                 <div className="hidden md:flex absolute top-[2.5rem] left-[15%] right-[15%] h-[2px] border-t-2 border-dashed border-gray-300 z-0 justify-around">
-                    <div className="w-4 h-4 flex items-center justify-center -mt-2.5 text-accent">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </div>
-                    <div className="w-4 h-4 flex items-center justify-center -mt-2.5 text-accent">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </div>
-                    <div className="w-4 h-4 flex items-center justify-center -mt-2.5 text-accent">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </div>
-                 </div>
-
-                 {/* Step 1 */}
-                 <div className="flex flex-col items-center text-center w-1/2 md:w-1/4 px-1 sm:px-2 relative z-10">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#e8f1ea] rounded-full flex items-center justify-center text-primary-dark mb-4 sm:mb-5 border border-primary/20">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
-                       <div className="bg-primary-dark text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-bold text-[9px] sm:text-[10px]">1</div>
-                       <h4 className="text-xs sm:text-sm font-bold text-primary-dark">Registrasi</h4>
-                    </div>
-                    <p className="text-gray-500 text-[11px] sm:text-[13px] leading-relaxed">Isi data diri dan detail<br /> kunjungan Anda.</p>
-                 </div>
-
-                 {/* Step 2 */}
-                 <div className="flex flex-col items-center text-center w-1/2 md:w-1/4 px-1 sm:px-2 relative z-10">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#e8f1ea] rounded-full flex items-center justify-center text-primary-dark mb-4 sm:mb-5 border border-primary/20">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
-                       <div className="bg-primary-dark text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-bold text-[9px] sm:text-[10px]">2</div>
-                       <h4 className="text-xs sm:text-sm font-bold text-primary-dark">Konfirmasi</h4>
-                    </div>
-                    <p className="text-gray-500 text-[11px] sm:text-[13px] leading-relaxed">Periksa kembali data<br /> dan konfirmasi.</p>
-                 </div>
-
-                 {/* Step 3 */}
-                 <div className="flex flex-col items-center text-center w-1/2 md:w-1/4 px-1 sm:px-2 relative z-10">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#e8f1ea] rounded-full flex items-center justify-center text-primary-dark mb-4 sm:mb-5 border border-primary/20">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
-                       <div className="bg-primary-dark text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-bold text-[9px] sm:text-[10px]">3</div>
-                       <h4 className="text-xs sm:text-sm font-bold text-primary-dark">Dapatkan QR</h4>
-                    </div>
-                    <p className="text-gray-500 text-[11px] sm:text-[13px] leading-relaxed">Simpan tiket digital<br /> berupa QR Code.</p>
-                 </div>
-
-                 {/* Step 4 */}
-                 <div className="flex flex-col items-center text-center w-1/2 md:w-1/4 px-1 sm:px-2 relative z-10">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#e8f1ea] rounded-full flex items-center justify-center text-primary-dark mb-4 sm:mb-5 border border-primary/20">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
-                       <div className="bg-primary-dark text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-bold text-[9px] sm:text-[10px]">4</div>
-                       <h4 className="text-xs sm:text-sm font-bold text-primary-dark">Petugas</h4>
-                    </div>
-                    <p className="text-gray-500 text-[11px] sm:text-[13px] leading-relaxed">Tunjukkan QR untuk<br /> proses pelayanan.</p>
-                 </div>
-
+              <div className="w-full bg-black rounded-2xl shadow-xl overflow-hidden aspect-video relative flex items-center justify-center">
+                 {getYouTubeEmbedUrl(settings.tutorial_youtube_url) ? (
+                     <iframe 
+                        src={getYouTubeEmbedUrl(settings.tutorial_youtube_url)} 
+                        title="Video Panduan Berkunjung" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowFullScreen
+                        className="absolute top-0 left-0 w-full h-full border-0"
+                     ></iframe>
+                 ) : (
+                     <div className="text-center p-6 text-white z-10 flex flex-col items-center">
+                        <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mb-4 opacity-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>
+                        </div>
+                        <p className="font-bold text-lg mb-1">Video Panduan</p>
+                        <p className="text-gray-300 text-sm">Video panduan belum diunggah oleh Admin.</p>
+                     </div>
+                 )}
               </div>
 
               {/* Note for Tutorial */}
-              <div className="mt-12 md:mt-16 text-center flex flex-col items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4">
-                 <div className="flex items-start sm:items-center max-w-lg text-left sm:text-center">
-                    <p className="text-gray-700 text-[13px] sm:text-sm font-medium leading-relaxed">
-                       Masih belum paham? <span className="text-primary-dark font-bold">Yuk, lihat panduan lengkapnya</span> dengan mengklik tombol <strong className="bg-primary-dark text-white px-2 py-0.5 rounded-full text-[10px] sm:text-xs mx-1">?</strong> di pojok kanan bawah.
+              <div className="mt-8 text-center flex flex-col items-center justify-center gap-2 px-4">
+                 <div className="flex items-center text-center justify-center max-w-lg">
+                    <p className="text-gray-700 text-sm font-medium leading-relaxed">
+                       Masih belum paham? Yuk, baca <span className="text-primary-dark font-bold">buku panduan lengkapnya</span> dengan mengklik tombol panduan berbentuk <strong className="bg-primary-dark text-white px-2.5 py-1 rounded-full text-xs mx-1 inline-flex items-center justify-center align-middle h-6 w-6">i</strong> di pojok kanan bawah.
                     </p>
                  </div>
               </div>

@@ -8,6 +8,10 @@ import { Search, Calendar, ChevronLeft, ChevronRight, Activity, Clock, Eye, X, C
 import { VisitScanData, Service } from '@/lib/types';
 import ReportPrintView from './ReportPrintView';
 import { getAdminServices } from '../services/actions';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { id } from "date-fns/locale";
+import { format } from "date-fns";
 
 function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 'scanned' | 'pending' }) {
     const searchParams = useSearchParams();
@@ -294,10 +298,15 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                                 </div>
 
                                 {period === 'day' && (
-                                    <input 
-                                        type="date"
-                                        value={date}
-                                        onChange={(e) => { setDate(e.target.value); setPage(1); }}
+                                    <DatePicker 
+                                        selected={date ? new Date(date) : null}
+                                        onChange={(d: Date | null) => { 
+                                            setDate(d ? format(d, 'yyyy-MM-dd') : ''); 
+                                            setPage(1); 
+                                        }}
+                                        dateFormat="dd/MM/yyyy"
+                                        locale={id}
+                                        placeholderText="Pilih Tanggal"
                                         className="block w-full sm:w-auto py-2 px-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none hover:border-green-400 transition-colors bg-white"
                                     />
                                 )}
@@ -418,7 +427,7 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                                             <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {activeTab === 'scanned' 
                                                     ? (visit.checked_in_at ? new Date(visit.checked_in_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-')
-                                                    : (visit.visit_date ? new Date(visit.visit_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-')
+                                                    : (visit.visit_date ? format(new Date(visit.visit_date), 'dd/MM/yyyy') : '-')
                                                 }
                                             </td>
                                         </tr>

@@ -35,6 +35,31 @@ export default function ScannerClient() {
         setIsLoadingHistory(false);
     };
 
+    const processScanResult = async (data: VisitScanData) => {
+        let finalData = data;
+        
+        if (finalData.status === 'pending' && finalData.visit_date) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const localTodayStr = `${year}-${month}-${day}`;
+            
+            if (finalData.visit_date === localTodayStr) {
+                const checkInResult = await checkInVisitAction(finalData.id);
+                if (checkInResult.success && checkInResult.data) {
+                    finalData = checkInResult.data;
+                    setSuccessMessage("Check-in Otomatis Berhasil.");
+                    fetchHistory(1);
+                } else {
+                    setError(checkInResult.error || "Check-in Otomatis Gagal.");
+                }
+            }
+        }
+        
+        return finalData;
+    };
+
     useEffect(() => {
         fetchHistory(1);
     }, []);
@@ -62,7 +87,8 @@ export default function ScannerClient() {
             const result = await scanVisitAction(decodedText);
             
             if (result.success && result.data) {
-                setScanResult(result.data);
+                const finalData = await processScanResult(result.data);
+                setScanResult(finalData);
             } else {
                 setError(result.error || "Scan Gagal. QR Code tidak valid atau terjadi kesalahan server.");
             }
@@ -174,7 +200,8 @@ export default function ScannerClient() {
         const result = await scanVisitAction(manualInput.trim());
         
         if (result.success && result.data) {
-            setScanResult(result.data);
+            const finalData = await processScanResult(result.data);
+            setScanResult(finalData);
             setManualInput(""); // clear input on success
         } else {
             setError(result.error || "Pencarian Gagal. Kode tidak valid atau terjadi kesalahan server.");

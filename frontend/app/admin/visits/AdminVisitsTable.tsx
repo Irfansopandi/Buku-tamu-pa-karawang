@@ -5,7 +5,11 @@ import { getAdminVisits } from './actions';
 import { PaginatedVisitsResponse } from '../../../lib/types';
 import { Search, Calendar, ChevronLeft, ChevronRight, Activity, Clock, Eye, X, ChevronDown, Plus, QrCode, Users, ClipboardList, Printer } from 'lucide-react';
 import { VisitScanData } from '../../../lib/types';
-import AdminAddVisitModal from './AdminAddVisitModal';
+import AdminAddVisitModal from "./AdminAddVisitModal";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { id } from "date-fns/locale";
+import { format } from "date-fns";
 import TicketCard from '@/components/public/TicketCard';
 import QRCode from 'qrcode';
 import { fetchApi } from '@/lib/api';
@@ -262,10 +266,15 @@ export default function AdminVisitsTable() {
                                 </div>
 
                                 {period === 'day' && (
-                                    <input 
-                                        type="date"
-                                        value={date}
-                                        onChange={(e) => { setDate(e.target.value); setPage(1); }}
+                                    <DatePicker 
+                                        selected={date ? new Date(date) : null}
+                                        onChange={(d: Date | null) => { 
+                                            setDate(d ? format(d, 'yyyy-MM-dd') : ''); 
+                                            setPage(1); 
+                                        }}
+                                        dateFormat="dd/MM/yyyy"
+                                        locale={id}
+                                        placeholderText="Pilih Tanggal"
                                         className="block w-full sm:w-auto py-2 px-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none hover:border-green-400 transition-colors bg-white"
                                     />
                                 )}
@@ -357,7 +366,7 @@ export default function AdminVisitsTable() {
                                                 </span>
                                             </td>
                                             <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {visit.visit_date ? new Date(visit.visit_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                                                {visit.visit_date ? format(new Date(visit.visit_date), 'dd/MM/yyyy') : '-'}
                                             </td>
                                             <td className="px-3 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">
                                                 {totalPeople} Org
@@ -465,7 +474,7 @@ export default function AdminVisitsTable() {
                                 {selectedVisit.visit_date && (
                                     <div className="col-span-2">
                                         <p className="text-gray-500 mb-1">Tanggal Kunjungan</p>
-                                        <p className="font-medium text-gray-900">{new Date(selectedVisit.visit_date).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                                        <p className="font-medium text-gray-900">{format(new Date(selectedVisit.visit_date), 'dd/MM/yyyy')}</p>
                                     </div>
                                 )}
                             </div>

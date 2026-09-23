@@ -5,6 +5,15 @@ import { Service, VisitPayload, ApiValidationError } from "../../../lib/types";
 import { fetchServicesAction, checkNikAction, submitVisitAction } from "../../../lib/public-actions";
 import { X, Loader2, PlusCircle, MinusCircle, User, Phone, Mail, CreditCard, Calendar, Briefcase, Users } from "lucide-react";
 import Swal from "sweetalert2";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { id } from "date-fns/locale";
+import { format } from "date-fns";
+
+const isWeekday = (date: Date) => {
+    const day = date.getDay();
+    return day !== 0 && day !== 6;
+};
 
 interface AdminAddVisitModalProps {
     isOpen: boolean;
@@ -256,8 +265,23 @@ export default function AdminAddVisitModal({ isOpen, onClose, onSuccess }: Admin
                             <div className="space-y-1">
                                 <label className="text-sm font-bold text-gray-700">Tanggal Kunjungan <span className="text-red-500">*</span></label>
                                 <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Calendar className="h-4 w-4 text-gray-400" /></div>
-                                    <input type="date" value={visitDate} onChange={handleDateChange} min={minDate} required className={`w-full pl-9 pr-3 py-2 border ${validationErrors.visit_date ? 'border-red-300' : 'border-gray-200 focus:border-green-500'} rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-green-500 bg-white`} />
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10"><Calendar className="h-4 w-4 text-gray-400" /></div>
+                                    <DatePicker 
+                                        selected={visitDate ? new Date(visitDate) : null}
+                                        onChange={(date: Date | null) => {
+                                            setVisitDate(date ? format(date, 'yyyy-MM-dd') : '');
+                                            setValidationErrors(prev => { const n = {...prev}; delete n.visit_date; return n; });
+                                        }}
+                                        minDate={minDate ? new Date(minDate) : undefined}
+                                        filterDate={isWeekday}
+                                        dateFormat="dd/MM/yyyy"
+                                        locale={id}
+                                        placeholderText="dd/mm/yyyy"
+                                        wrapperClassName="w-full"
+                                        popperPlacement="bottom-start"
+                                        required
+                                        className={`w-full pl-9 pr-3 py-2 border ${validationErrors.visit_date ? 'border-red-300' : 'border-gray-200 focus:border-green-500'} rounded-xl text-sm focus:outline-none bg-white`}
+                                    />
                                 </div>
                                 {validationErrors.visit_date && <p className="text-red-500 text-xs mt-1">{validationErrors.visit_date[0]}</p>}
                             </div>

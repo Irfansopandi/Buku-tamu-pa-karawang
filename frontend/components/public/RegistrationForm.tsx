@@ -8,6 +8,15 @@ import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
 import { User, CreditCard, Phone, Mail, Calendar, Users, Briefcase, PlusCircle, MinusCircle, AlertCircle, Loader2, ChevronDown, CheckCircle2, ArrowLeft, Check } from "lucide-react";
 import Link from "next/link";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { id } from "date-fns/locale";
+import { format, parse } from "date-fns";
+
+const isWeekday = (date: Date) => {
+    const day = date.getDay();
+    return day !== 0 && day !== 6;
+};
 
 export default function RegistrationForm() {
     const router = useRouter();
@@ -599,17 +608,27 @@ export default function RegistrationForm() {
                                     <div className="space-y-2">
                                         <label htmlFor="visitDate" className="text-sm font-bold text-gray-700">Tanggal Kunjungan <span className="text-red-500">*</span></label>
                                         <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                                                 <Calendar className="h-5 w-5 text-gray-400" />
                                             </div>
-                                            <input 
+                                            <DatePicker 
                                                 id="visitDate"
-                                                type="date" 
-                                                value={visitDate}
-                                                onChange={handleDateChange}
-                                                min={minDate}
+                                                selected={visitDate ? new Date(visitDate) : null}
+                                                onChange={(date: Date | null) => {
+                                                    setVisitDate(date ? format(date, 'yyyy-MM-dd') : '');
+                                                    if (validationErrors.visit_date) {
+                                                        setValidationErrors(prev => { const n = {...prev}; delete n.visit_date; return n; });
+                                                    }
+                                                }}
+                                                minDate={minDate ? new Date(minDate) : undefined}
+                                                filterDate={isWeekday}
+                                                dateFormat="dd/MM/yyyy"
+                                                locale={id}
+                                                placeholderText="dd/mm/yyyy"
+                                                wrapperClassName="w-full"
+                                                popperPlacement="bottom-start"
                                                 required={currentStep === 2}
-                                                className={`w-full pl-10 pr-4 py-3 border ${validationErrors.visit_date ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-primary focus:border-primary'} rounded-xl focus:outline-none focus:ring-2 shadow-sm text-sm bg-white`}
+                                                className={`w-full pl-10 pr-4 py-3 border ${validationErrors.visit_date ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-primary'} rounded-xl focus:outline-none shadow-sm text-sm bg-white`}
                                             />
                                         </div>
                                         {validationErrors.visit_date && (

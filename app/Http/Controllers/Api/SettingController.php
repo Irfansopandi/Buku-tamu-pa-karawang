@@ -21,52 +21,46 @@ class SettingController extends Controller
     public function updatePublicGuide(Request $request)
     {
         $request->validate([
-            'form_type' => 'required|in:image,video',
+            'form_type' => 'required|in:pdf,youtube',
         ]);
 
-        if ($request->form_type === 'image') {
+        if ($request->form_type === 'youtube') {
             $request->validate([
-                'welcome_image' => 'required|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+                'tutorial_youtube_url' => 'required|url',
             ], [
-                'welcome_image.required' => 'Pilih gambar terlebih dahulu.',
+                'tutorial_youtube_url.required' => 'URL YouTube tidak boleh kosong.',
+                'tutorial_youtube_url.url' => 'Format URL tidak valid.',
             ]);
 
-            $path = $request->file('welcome_image')->store('settings', 'public');
-            $url = '/storage/' . $path;
-            Setting::updateOrCreate(['key' => 'welcome_image'], ['value' => $url]);
+            Setting::updateOrCreate(['key' => 'tutorial_youtube_url'], ['value' => $request->tutorial_youtube_url]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Gambar panduan berhasil disimpan.',
+                'message' => 'URL Video Tutorial berhasil disimpan.',
             ]);
         }
 
-        if ($request->form_type === 'video') {
+        if ($request->form_type === 'pdf') {
             $request->validate([
-                'welcome_video_type' => 'required|in:upload,youtube',
-                'welcome_video_file' => 'required_if:welcome_video_type,upload|mimes:mp4,webm|max:51200',
-                'welcome_video_url' => 'required_if:welcome_video_type,youtube|url',
+                'welcome_pdf' => 'required|mimes:pdf|max:10240', // max 10MB
             ], [
-                'welcome_video_file.required_if' => 'Pilih file video terlebih dahulu.',
-                'welcome_video_url.required_if' => 'URL YouTube tidak boleh kosong.',
-                'welcome_video_url.url' => 'Format URL tidak valid.',
+                'welcome_pdf.required' => 'Pilih file PDF terlebih dahulu.',
+                'welcome_pdf.mimes' => 'File harus berupa PDF.',
+                'welcome_pdf.max' => 'Ukuran file PDF maksimal 10MB.',
             ]);
 
-            Setting::updateOrCreate(['key' => 'welcome_video_type'], ['value' => $request->welcome_video_type]);
-
-            if ($request->welcome_video_type === 'upload') {
-                if ($request->hasFile('welcome_video_file')) {
-                    $path = $request->file('welcome_video_file')->store('settings', 'public');
-                    $url = '/storage/' . $path;
-                    Setting::updateOrCreate(['key' => 'welcome_video_url'], ['value' => $url]);
-                }
-            } else {
-                Setting::updateOrCreate(['key' => 'welcome_video_url'], ['value' => $request->welcome_video_url]);
+            if ($request->hasFile('welcome_pdf')) {
+                $path = $request->file('welcome_pdf')->store('settings', 'public');
+                $url = '/storage/' . $path;
+                Setting::updateOrCreate(['key' => 'welcome_pdf'], ['value' => $url]);
+                
+                // Opsional: Hapus setting lama jika belum terhapus
+                Setting::whereIn('key', ['welcome_image', 'welcome_video_type', 'welcome_video_url'])->delete();
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Video panduan berhasil disimpan.',
+                'message' => 'Buku Panduan PDF berhasil disimpan.',
             ]);
         }
     }

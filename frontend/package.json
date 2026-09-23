@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@types/react-datepicker": "^6.2.0",
+    "date-fns": "^4.4.0",
     "framer-motion": "^13.1.1",
     "html-to-image": "^1.11.13",
     "html5-qrcode": "^2.3.8",
@@ -17,7 +19,9 @@
     "next": "16.3.2",
     "qrcode": "^1.5.4",
     "react": "19.2.8",
+    "react-datepicker": "^9.1.0",
     "react-dom": "19.2.8",
+    "react-pdf": "^11.0.0",
     "recharts": "^3.10.1",
     "sweetalert2": "^11.26.25"
   },
