@@ -100,7 +100,7 @@ export default function ReportPrintView({ period, date, monthYear, activeTab, se
                 <tbody>
                     {data.data.length === 0 ? (
                         <tr>
-                            <td colSpan={8} className="border border-gray-300 px-2 py-4 text-center italic text-gray-500">
+                            <td colSpan={9} className="border border-gray-300 px-2 py-4 text-center italic text-gray-500">
                                 Tidak ada data kunjungan pada filter yang dipilih.
                             </td>
                         </tr>
@@ -126,6 +126,7 @@ export default function ReportPrintView({ period, date, monthYear, activeTab, se
                                         <div>{visit.visitor.email || '-'}</div>
                                         <div className="text-gray-500">{visit.visitor.phone || '-'}</div>
                                     </td>
+                                    <td className="border border-gray-300 px-2 py-2">{visit.service?.name || '-'}</td>
                                     <td className="border border-gray-300 px-2 py-2 text-center">{totalPeople}</td>
                                     <td className="border border-gray-300 px-2 py-2">
                                         {visit.visit_date ? new Date(visit.visit_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
