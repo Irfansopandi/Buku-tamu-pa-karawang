@@ -119,7 +119,19 @@ export default function AdminVisitsTable() {
         setPage(1);
     };
 
-    const getStatusStyle = (status: string) => {
+    const isVisitPassed = (visitDate?: string | null) => {
+        if (!visitDate) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const visitD = new Date(visitDate);
+        visitD.setHours(0, 0, 0, 0);
+        return visitD.getTime() < today.getTime();
+    };
+
+    const getStatusStyle = (status: string, visitDate?: string | null) => {
+        if (status === 'pending' && isVisitPassed(visitDate)) {
+            return 'bg-red-50 text-red-700 border-red-200';
+        }
         switch (status) {
             case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
             case 'checked_in': return 'bg-green-100 text-green-800 border-green-200';
@@ -129,7 +141,10 @@ export default function AdminVisitsTable() {
         }
     };
     
-    const getStatusLabel = (status: string) => {
+    const getStatusLabel = (status: string, visitDate?: string | null) => {
+        if (status === 'pending' && isVisitPassed(visitDate)) {
+            return 'Terlewat';
+        }
         switch (status) {
             case 'pending': return 'Menunggu';
             case 'checked_in': return 'Check-in';
@@ -230,6 +245,7 @@ export default function AdminVisitsTable() {
                                 >
                                     <option value="all">Semua Status</option>
                                     <option value="pending">Menunggu</option>
+                                    <option value="terlewat">Terlewat</option>
                                     <option value="checked_in">Check-in</option>
                                 </select>
                                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-gray-400">
@@ -293,7 +309,7 @@ export default function AdminVisitsTable() {
                 </div>
 
                 {/* Summary Badges */}
-                <div className="px-6 py-4 bg-gray-50/80 border-b border-gray-100 flex items-center gap-4">
+                <div className="px-6 py-4 bg-gray-50/80 border-b border-gray-100 flex flex-wrap items-center gap-4">
                     <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-yellow-200 bg-yellow-50 text-yellow-700 shadow-sm transition-all hover:shadow-md">
                         <QrCode className="w-4 h-4 text-yellow-600" />
                         <span className="text-sm font-bold">{data?.meta?.total ?? 0} Tiket</span>
@@ -301,6 +317,10 @@ export default function AdminVisitsTable() {
                     <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-green-200 bg-green-50 text-green-700 shadow-sm transition-all hover:shadow-md">
                         <Users className="w-4 h-4 text-green-600" />
                         <span className="text-sm font-bold">{data?.meta?.total_people ?? 0} Pengunjung</span>
+                    </div>
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-red-200 bg-red-50 text-red-700 shadow-sm transition-all hover:shadow-md">
+                        <Activity className="w-4 h-4 text-red-600" />
+                        <span className="text-sm font-bold">{data?.meta?.total_missed ?? 0} Terlewat</span>
                     </div>
                 </div>
 
@@ -320,16 +340,16 @@ export default function AdminVisitsTable() {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">No.</th>
-                                    <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">No. Antrian</th>
-                                    <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Pengunjung</th>
-                                    <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">NIK</th>
-                                    <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email / No. HP</th>
-                                    <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Layanan</th>
-                                    <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tgl Kunjungan</th>
-                                    <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Rombongan</th>
-                                    <th scope="col" className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th scope="col" className="px-3 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    <th scope="col" className="px-2 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">No.</th>
+                                    <th scope="col" className="px-2 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">No. Antrian</th>
+                                    <th scope="col" className="px-2 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Pengunjung</th>
+                                    <th scope="col" className="px-2 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">NIK</th>
+                                    <th scope="col" className="px-2 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email / No. HP</th>
+                                    <th scope="col" className="px-2 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Layanan</th>
+                                    <th scope="col" className="px-2 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tgl Kunjungan</th>
+                                    <th scope="col" className="px-2 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Rombongan</th>
+                                    <th scope="col" className="px-2 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" className="px-2 py-2 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100 relative">
@@ -344,39 +364,39 @@ export default function AdminVisitsTable() {
                                     
                                     return (
                                         <tr key={visit.id} className="hover:bg-gray-50 transition-colors">
-                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{rowNumber}</td>
-                                            <td className="px-3 py-4 whitespace-nowrap">
-                                                <span className="font-semibold text-gray-900">{visit.visit_number}</span>
+                                            <td className="px-2 py-3 whitespace-nowrap text-xs text-gray-500">{rowNumber}</td>
+                                            <td className="px-2 py-3 whitespace-nowrap">
+                                                <span className="font-semibold text-xs text-gray-900">{visit.visit_number}</span>
                                             </td>
-                                            <td className="px-3 py-4">
-                                                <div className="font-medium text-gray-900 whitespace-normal break-words max-w-[150px]">{visit.visitor.name}</div>
+                                            <td className="px-2 py-3 whitespace-nowrap">
+                                                <div className="font-medium text-gray-900 text-xs">{visit.visitor.name}</div>
                                             </td>
-                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-2 py-3 whitespace-nowrap text-xs text-gray-500">
                                                 {visit.visitor.nik || '-'}
                                             </td>
-                                            <td className="px-3 py-4">
-                                                <div className="flex flex-col text-sm">
+                                            <td className="px-2 py-3 whitespace-nowrap">
+                                                <div className="flex flex-col text-[11px] leading-tight">
                                                     <span className="text-gray-900 font-medium">{visit.visitor.email || '-'}</span>
                                                     <span className="text-gray-500">{visit.visitor.phone || '-'}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-3 py-4">
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 whitespace-nowrap">
+                                            <td className="px-2 py-3 whitespace-nowrap">
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-800">
                                                     {visit.service?.name || '-'}
                                                 </span>
                                             </td>
-                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-2 py-3 whitespace-nowrap text-xs text-gray-500">
                                                 {visit.visit_date ? format(new Date(visit.visit_date), 'dd/MM/yyyy') : '-'}
                                             </td>
-                                            <td className="px-3 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">
+                                            <td className="px-2 py-3 whitespace-nowrap text-center text-xs font-medium text-gray-900">
                                                 {totalPeople} Org
                                             </td>
-                                            <td className="px-3 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(visit.status)}`}>
-                                                    {getStatusLabel(visit.status)}
+                                            <td className="px-2 py-3 whitespace-nowrap text-center">
+                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${getStatusStyle(visit.status, visit.visit_date)}`}>
+                                                    {getStatusLabel(visit.status, visit.visit_date)}
                                                 </span>
                                             </td>
-                                            <td className="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                            <td className="px-2 py-3 whitespace-nowrap text-center">
                                                 <div className="flex items-center justify-center gap-1.5">
                                                     <button 
                                                         onClick={() => setSelectedVisit(visit)}
@@ -443,8 +463,8 @@ export default function AdminVisitsTable() {
                                 </div>
                                 <div>
                                     <p className="text-gray-500 mb-1">Status</p>
-                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(selectedVisit.status)}`}>
-                                        {getStatusLabel(selectedVisit.status)}
+                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(selectedVisit.status, selectedVisit.visit_date)}`}>
+                                        {getStatusLabel(selectedVisit.status, selectedVisit.visit_date)}
                                     </span>
                                 </div>
                                 <div>

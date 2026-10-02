@@ -226,7 +226,15 @@ class AdminApiController extends Controller
         }
 
         if ($request->has('status')) {
-            $query->where('status', $request->status);
+            if ($request->status === 'terlewat') {
+                $query->where('status', 'pending')
+                      ->whereDate('visit_date', '<', now()->setTimezone('Asia/Jakarta')->toDateString());
+            } elseif ($request->status === 'pending') {
+                $query->where('status', 'pending')
+                      ->whereDate('visit_date', '>=', now()->setTimezone('Asia/Jakarta')->toDateString());
+            } else {
+                $query->where('status', $request->status);
+            }
         }
 
         if ($request->has('date')) {
@@ -273,15 +281,18 @@ class AdminApiController extends Controller
 
         // --- Calculate Summary Stats ---
         $scannedQuery = Visit::whereNotNull('checked_in_at');
-        $pendingQuery = Visit::where('status', 'pending');
+        $pendingQuery = Visit::where('status', 'pending')->whereDate('visit_date', '>=', now()->setTimezone('Asia/Jakarta')->toDateString());
+        $missedQuery = Visit::where('status', 'pending')->whereDate('visit_date', '<', now()->setTimezone('Asia/Jakarta')->toDateString());
         
         if ($request->has('date')) {
             $scannedQuery->whereDate('checked_in_at', $request->date);
             $pendingQuery->whereDate('visit_date', $request->date);
+            $missedQuery->whereDate('visit_date', $request->date);
         }
         if ($request->has('month') && $request->has('year')) {
             $scannedQuery->whereMonth('checked_in_at', $request->month)->whereYear('checked_in_at', $request->year);
             $pendingQuery->whereMonth('visit_date', $request->month)->whereYear('visit_date', $request->year);
+            $missedQuery->whereMonth('visit_date', $request->month)->whereYear('visit_date', $request->year);
         }
         if ($request->has('search')) {
             $search = $request->search;
@@ -293,11 +304,13 @@ class AdminApiController extends Controller
             };
             $scannedQuery->where($searchClosure);
             $pendingQuery->where($searchClosure);
+            $missedQuery->where($searchClosure);
         }
 
         if ($request->has('service_id') && $request->service_id !== '') {
             $scannedQuery->where('service_id', $request->service_id);
             $pendingQuery->where('service_id', $request->service_id);
+            $missedQuery->where('service_id', $request->service_id);
         }
         
         $scannedTickets = (clone $scannedQuery)->count();
@@ -308,6 +321,11 @@ class AdminApiController extends Controller
         $pendingTickets = (clone $pendingQuery)->count();
         $pendingMembers = \Illuminate\Support\Facades\DB::table('visit_members')
             ->joinSub((clone $pendingQuery)->select('id'), 'v', function ($join) { $join->on('visit_members.visit_id', '=', 'v.id'); })
+            ->count();
+
+        $missedTickets = (clone $missedQuery)->count();
+        $missedMembers = \Illuminate\Support\Facades\DB::table('visit_members')
+            ->joinSub((clone $missedQuery)->select('id'), 'v', function ($join) { $join->on('visit_members.visit_id', '=', 'v.id'); })
             ->count();
 
         $totalTickets = (clone $query)->count();
@@ -325,9 +343,14 @@ class AdminApiController extends Controller
                     'tickets' => $pendingTickets, 
                     'people' => $pendingTickets + $pendingMembers
                 ],
+                'missed' => [
+                    'tickets' => $missedTickets,
+                    'people' => $missedTickets + $missedMembers
+                ]
             ],
             'meta' => [
-                'total_people' => $totalTickets + $totalMembers
+                'total_people' => $totalTickets + $totalMembers,
+                'total_missed' => $missedTickets
             ]
         ]);
     }

@@ -29,3 +29,8 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Disable outside days in react-datepicker */
+.react-datepicker__day--outside-month {
+  pointer-events: none;
+  opacity: 0.3;
+}

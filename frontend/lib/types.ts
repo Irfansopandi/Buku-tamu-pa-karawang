@@ -136,6 +136,7 @@ export interface PaginatedVisitsResponse {
         per_page: number;
         total: number;
         total_people: number;
+        total_missed?: number;
     };
     links: {
         first: string | null;
@@ -146,5 +147,6 @@ export interface PaginatedVisitsResponse {
     summary?: {
         scanned: { tickets: number; people: number; };
         pending: { tickets: number; people: number; };
+        missed?: { tickets: number; people: number; };
     };
 }

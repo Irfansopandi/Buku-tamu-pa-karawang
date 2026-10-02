@@ -4,7 +4,7 @@ interface ReportPrintViewProps {
     period: 'all' | 'day' | 'month';
     date: string;
     monthYear: string;
-    activeTab: 'scanned' | 'pending';
+    activeTab: 'scanned' | 'pending' | 'missed';
     search: string;
     data: PaginatedVisitsResponse | null;
     serviceName?: string;
@@ -67,7 +67,7 @@ export default function ReportPrintView({ period, date, monthYear, activeTab, se
                 <div>
                     <p><span className="font-semibold w-20 inline-block">Periode</span>: {period === 'all' ? 'Semua' : period === 'day' ? 'Harian' : 'Bulanan'}</p>
                     <p><span className="font-semibold w-20 inline-block">Waktu</span>: {getPeriodText()}</p>
-                    <p><span className="font-semibold w-20 inline-block">Status</span>: {activeTab === 'scanned' ? 'Sudah Scan' : 'Belum Scan'}</p>
+                    <p><span className="font-semibold w-20 inline-block">Status</span>: {activeTab === 'scanned' ? 'Sudah Scan' : activeTab === 'pending' ? 'Belum Scan' : 'Terlewat'}</p>
                     {serviceName && (
                         <p><span className="font-semibold w-20 inline-block">Layanan</span>: {serviceName}</p>
                     )}

@@ -13,7 +13,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { id } from "date-fns/locale";
 import { format } from "date-fns";
 
-function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 'scanned' | 'pending' }) {
+function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 'scanned' | 'pending' | 'missed' }) {
     const searchParams = useSearchParams();
     const tabParam = searchParams.get('tab');
     
@@ -21,8 +21,8 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [period, setPeriod] = useState<'all' | 'day' | 'month'>('day');
-    const [activeTab, setActiveTab] = useState<'scanned' | 'pending'>(
-        (tabParam === 'scanned' || tabParam === 'pending') ? tabParam : initialTab
+    const [activeTab, setActiveTab] = useState<'scanned' | 'pending' | 'missed'>(
+        (tabParam === 'scanned' || tabParam === 'pending' || tabParam === 'missed') ? tabParam : initialTab
     );
     
     // Services
@@ -60,7 +60,7 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
 
     // Sync tab with URL
     useEffect(() => {
-        if (tabParam === 'scanned' || tabParam === 'pending') {
+        if (tabParam === 'scanned' || tabParam === 'pending' || tabParam === 'missed') {
             setActiveTab(tabParam);
             setPage(1);
         }
@@ -88,8 +88,10 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
             
             if (activeTab === 'scanned') {
                 params.scanned_only = true;
-            } else {
+            } else if (activeTab === 'pending') {
                 params.status = 'pending';
+            } else if (activeTab === 'missed') {
+                params.status = 'terlewat';
             }
             
             if (period === 'day' && date) {
@@ -177,7 +179,8 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
             }
             
             if (activeTab === 'scanned') params.scanned_only = true;
-            if (activeTab === 'pending') params.pending_only = true;
+            if (activeTab === 'pending') params.status = 'pending';
+            if (activeTab === 'missed') params.status = 'terlewat';
             
             if (period === 'day' && date) params.date = date;
             if (period === 'month') {
@@ -356,6 +359,21 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                             </span>
                         )}
                     </button>
+                    <button
+                        onClick={() => { setActiveTab('missed'); setPage(1); }}
+                        className={`group py-2.5 px-4 font-medium text-sm rounded-xl transition-all duration-200 flex items-center gap-2 ${
+                            activeTab === 'missed' 
+                            ? 'bg-red-600 text-white shadow-md shadow-red-600/20 ring-1 ring-red-600' 
+                            : 'bg-white text-gray-600 border border-gray-200 hover:bg-red-50 hover:border-red-600/30 hover:text-red-600 shadow-sm'
+                        }`}
+                    >
+                        Terlewat
+                        {data?.summary?.missed && (
+                            <span className={`py-0.5 px-2 rounded-full text-xs font-semibold transition-colors ${activeTab === 'missed' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600 group-hover:bg-red-600/10 group-hover:text-red-600'}`}>
+                                {data.summary.missed.tickets} Tiket • {data.summary.missed.people} Orang
+                            </span>
+                        )}
+                    </button>
                 </div>
 
                 {/* Table Area */}
@@ -369,7 +387,7 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
                         <div className="flex flex-col items-center justify-center py-20 text-gray-500">
                             <Activity className="w-12 h-12 text-gray-200 mb-4" />
                             <p className="font-bold text-gray-600 mb-1">Belum Ada Pengunjung</p>
-                            <p className="text-sm">Belum ada pengunjung pada {activeTab === 'scanned' ? 'status Sudah Scan' : 'status Belum Scan'} untuk filter saat ini.</p>
+                            <p className="text-sm">Belum ada pengunjung pada {activeTab === 'scanned' ? 'status Sudah Scan' : activeTab === 'pending' ? 'status Belum Scan' : 'status Terlewat'} untuk filter saat ini.</p>
                         </div>
                     ) : data ? (
                         <table className="min-w-full divide-y divide-gray-200">
@@ -480,7 +498,7 @@ function AdminVisitorsTableContent({ initialTab = 'scanned' }: { initialTab?: 's
     );
 }
 
-export default function AdminVisitorsTable({ initialTab = 'scanned' }: { initialTab?: 'scanned' | 'pending' }) {
+export default function AdminVisitorsTable({ initialTab = 'scanned' }: { initialTab?: 'scanned' | 'pending' | 'missed' }) {
     return (
         <Suspense fallback={<div className="p-12 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#085C3B]"></div></div>}>
             <AdminVisitorsTableContent initialTab={initialTab} />
