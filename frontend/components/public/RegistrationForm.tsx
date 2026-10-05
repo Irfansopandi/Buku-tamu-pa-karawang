@@ -189,7 +189,7 @@ export default function RegistrationForm() {
         if (!cleanPhone) {
             localErrors.phone = ["Nomor WhatsApp wajib diisi."];
         }
-        if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) {
+        if (email.trim() && !/^\S+@\S+\.\S+$/.test(email)) {
             localErrors.email = ["Alamat email tidak valid."];
         }
 
@@ -512,7 +512,7 @@ export default function RegistrationForm() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label htmlFor="email" className="text-sm font-bold text-gray-700">Alamat Email <span className="text-red-500">*</span></label>
+                                        <label htmlFor="email" className="text-sm font-bold text-gray-700">Alamat Email (Opsional)</label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <Mail className="h-5 w-5 text-gray-400" />
@@ -529,7 +529,7 @@ export default function RegistrationForm() {
                                                 }}
                                                 maxLength={150}
                                                 placeholder="Contoh: email@domain.com"
-                                                required={currentStep === 1}
+                                                required={false}
                                                 className={`w-full pl-10 pr-4 py-3 border ${validationErrors.email ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-primary focus:border-primary'} rounded-xl focus:outline-none focus:ring-2 shadow-sm text-sm`}
                                             />
                                         </div>

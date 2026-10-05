@@ -30,7 +30,7 @@ class StoreVisitRequest extends FormRequest
             'full_name' => ['required', 'string', 'max:100'],
             'nik' => ['required', 'digits:16'],
             'phone' => ['required', 'string', 'regex:/^[0-9]+$/', 'max:20'],
-            'email' => ['required', 'email', 'max:150'],
+            'email' => ['nullable', 'email', 'max:150'],
             'group_size' => ['required', 'integer', 'min:1'],
             'members' => ['array', 'size:' . $expectedMembersCount],
             'members.*.name' => ['required_with:members', 'string', 'max:100'],

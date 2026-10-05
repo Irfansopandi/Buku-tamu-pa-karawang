@@ -346,7 +346,7 @@ export default function LandingPage() {
         <section className="py-12 bg-transparent">
            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-10 flex flex-col items-center">
-                 <h2 className="text-2xl font-bold text-primary-dark">CARA BERKUNJUNG</h2>
+                 <h2 className="text-2xl font-bold text-primary-dark">VIDEO TUTORIAL</h2>
                  <div className="w-12 h-1 bg-accent mt-3 rounded-full"></div>
               </div>
               <div className="w-full bg-black rounded-2xl shadow-xl overflow-hidden aspect-video relative flex items-center justify-center">
