@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, CheckCircle2 } from "lucide-react";
 import Navbar from "../components/public/Navbar";
@@ -14,7 +15,7 @@ import { getSettingsAction } from "@/app/admin/settings/actions";
 export default function LandingPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchState, setSearchState] = useState<"default" | "loading" | "error" | "not_found" | "found">("default");
-  const [ticketDataList, setTicketDataList] = useState<any[]>([]);
+  const [ticketDataList, setTicketDataList] = useState<Record<string, any>[]>([]);
   const [selectedTicketIndex, setSelectedTicketIndex] = useState<number>(0);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   
@@ -147,7 +148,7 @@ export default function LandingPage() {
                maskImage: 'linear-gradient(to right, transparent 0%, black 40%)' 
              }}
           >
-             <img src="/images/gedung.jpg" alt="Gedung PA Karawang" className="w-full h-full object-cover object-left" />
+             <Image src="/images/gedung.jpg" alt="Gedung PA Karawang" fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-cover object-left" priority />
              {/* Wash overlay to ensure text readability on mobile while keeping building visible */}
              <div className="absolute inset-0 bg-gradient-to-r from-[#FEF9F0]/95 via-[#FEF9F0]/60 to-[#FEF9F0]/10 lg:hidden"></div>
              
@@ -251,6 +252,7 @@ export default function LandingPage() {
                            <button 
                               type="submit" 
                               disabled={searchState === 'loading'}
+                              aria-label="Cari Tiket"
                               className="bg-primary-dark text-white px-4 sm:px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-primary transition-colors flex items-center justify-center gap-2 flex-shrink-0 disabled:opacity-70 disabled:cursor-not-allowed"
                            >
                               {searchState === 'loading' ? (

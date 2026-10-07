@@ -10,8 +10,32 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Buku Tamu Digital - Pengadilan Agama Karawang",
-  description: "Buku Tamu Digital Pengadilan Agama Karawang",
+  title: "SIBUTAL - Sistem Informasi Buku Tamu Digital Pengadilan Agama Karawang",
+  description: "SIBUTAL (Sistem Informasi Buku Tamu Digital) Pengadilan Agama Karawang untuk registrasi kunjungan secara online dengan mudah dan cepat.",
+  keywords: ["SIBUTAL", "Sistem Informasi Buku Tamu Digital", "Buku Tamu", "Pengadilan Agama Karawang", "PA Karawang", "Digital", "Registrasi Kunjungan", "Pelayanan Publik"],
+  authors: [{ name: "Pengadilan Agama Karawang" }],
+  openGraph: {
+    title: "SIBUTAL - Sistem Informasi Buku Tamu Digital Pengadilan Agama Karawang",
+    description: "SIBUTAL (Sistem Informasi Buku Tamu Digital) Pengadilan Agama Karawang untuk registrasi kunjungan secara online dengan mudah dan cepat.",
+    url: "https://pa-karawang.go.id",
+    siteName: "SIBUTAL PA Karawang",
+    images: [
+      {
+        url: "/images/gedung.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Gedung Pengadilan Agama Karawang",
+      }
+    ],
+    locale: "id_ID",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SIBUTAL - Buku Tamu Digital Pengadilan Agama Karawang",
+    description: "Registrasi kunjungan ke Pengadilan Agama Karawang lebih mudah dengan SIBUTAL.",
+    images: ["/images/gedung.jpg"],
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
